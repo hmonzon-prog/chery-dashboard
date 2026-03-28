@@ -289,6 +289,69 @@
 
         </div>
 
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- SECCIÓN NUEVA 1: OCUPACIÓN DEL DEPÓSITO CHERY    -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <div class="glass-card overflow-hidden">
+            <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
+                <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-purple-400">
+                    <i data-lucide="warehouse"></i> Ocupación del Depósito — CHERY
+                </h2>
+                <span class="text-[10px] text-slate-500 italic">Actualizado en tiempo real</span>
+            </div>
+            <!-- KPIs globales -->
+            <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-4" id="ocup-kpis">
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+            </div>
+            <!-- Desglose por tipo -->
+            <div class="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white/5 rounded-xl p-5 border border-white/10">
+                    <h3 class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="package" class="w-4 h-4"></i> PICKING
+                    </h3>
+                    <div id="ocup-picking"><div class="h-4 bg-slate-700 rounded animate-pulse"></div></div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-5 border border-white/10">
+                    <h3 class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4"></i> ALTURA
+                    </h3>
+                    <div id="ocup-altura"><div class="h-4 bg-slate-700 rounded animate-pulse"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- SECCIÓN NUEVA 2: FICHA SEMANAL DE PERFORMANCE    -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <div class="glass-card overflow-hidden">
+            <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
+                <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-yellow-400">
+                    <i data-lucide="calendar-range"></i> Ficha Semanal de Performance
+                </h2>
+                <div class="flex gap-3">
+                    <span id="semanal-badge-curr" class="bg-yellow-600/20 text-yellow-400 text-[10px] font-black px-3 py-1 rounded border border-yellow-500/30">Sem. Actual</span>
+                    <span id="semanal-badge-prev" class="bg-slate-700/50 text-slate-400 text-[10px] font-black px-3 py-1 rounded border border-white/10">Sem. Anterior</span>
+                </div>
+            </div>
+            <div class="overflow-x-auto scroller">
+                <table class="w-full text-xs">
+                    <thead class="sticky top-0 bg-slate-950 text-slate-500 z-10">
+                        <tr>
+                            <th class="px-6 py-4 text-left font-black tracking-widest uppercase text-[10px] w-48">Descripción</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-yellow-400" id="week-col-1">Semana Actual</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-600">Accuracy %</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-400" id="week-col-2">Semana Ant.</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-600">Accuracy %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="semanal-body" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </div>
+
     </main>
 
     <!-- LOADING SCREEN -->
@@ -307,7 +370,8 @@
         const URLS = {
             pick: `${BASE_PUB}?gid=1225922230&single=true&output=csv`,
             cic: `${BASE_PUB}?gid=0&single=true&output=csv`,
-            hist: `${BASE_PUB}?gid=1269051725&single=true&output=csv`
+            hist: `${BASE_PUB}?gid=1269051725&single=true&output=csv`,
+            ocup: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ2T8KnjQ6Xzi7gxPtdOaqkHR6n8qwdQ6T_SSW1IScK9Sr448Ipg7ViS8F1MrgprdzMgXVYkZkWvm3/pub?output=csv'
         };
 
         let currentChart = null;
@@ -325,14 +389,18 @@
                 const results = await Promise.all([
                     fetch(`${URLS.pick}&cache=${Date.now()}`).then(r => r.text()),
                     fetch(`${URLS.cic}&cache=${Date.now()}`).then(r => r.text()),
-                    fetch(`${URLS.hist}&cache=${Date.now()}`).then(r => r.text())
+                    fetch(`${URLS.hist}&cache=${Date.now()}`).then(r => r.text()),
+                    fetch(`${URLS.ocup}&cb=${Date.now()}`).then(r => r.text())
                 ]);
 
                 const pickData = Papa.parse(results[0], { header: true, skipEmptyLines: true }).data;
                 const cicData = Papa.parse(results[1], { header: true, skipEmptyLines: true }).data;
                 const histData = Papa.parse(results[2], { header: true, skipEmptyLines: true }).data;
+                const ocupData = Papa.parse(results[3], { header: true, skipEmptyLines: true }).data;
 
                 processData(pickData, cicData, histData);
+                renderOcupacion(ocupData);
+                renderFichaSemanal(pickData, cicData);
 
             } catch (err) {
                 console.error(err);
@@ -562,6 +630,146 @@
 
         function refreshData() {
             initData();
+        }
+
+        // ══════════════════════════════════════════════════════
+        // SECCIÓN NUEVA 1: OCUPACIÓN DEL DEPÓSITO
+        // ══════════════════════════════════════════════════════
+        function renderOcupacion(data) {
+            const chery = data.filter(r => (r['SECTOR'] || '').trim().toUpperCase() === 'CHERY');
+            const total = chery.length;
+            const ocupadas = chery.filter(r => (r['OCUPACION'] || '').trim().toUpperCase() === 'OCUPADA').length;
+            const vacias = total - ocupadas;
+            const pct = total > 0 ? Math.round((ocupadas / total) * 100) : 0;
+
+            const picking = chery.filter(r => (r['TIPO LOC'] || '').trim().toUpperCase() === 'PICKING');
+            const altura  = chery.filter(r => (r['TIPO LOC'] || '').trim().toUpperCase() === 'ALTURA');
+
+            document.getElementById('ocup-kpis').innerHTML = `
+                <div class="bg-purple-900/20 border border-purple-500/20 rounded-xl p-4 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-purple-400 mb-2">Total Locs CHERY</p>
+                    <p class="text-3xl font-black">${total.toLocaleString()}</p>
+                </div>
+                <div class="bg-green-900/20 border border-green-500/20 rounded-xl p-4 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-green-400 mb-2">Ocupadas</p>
+                    <p class="text-3xl font-black text-green-400">${ocupadas.toLocaleString()}</p>
+                </div>
+                <div class="bg-slate-800/50 border border-white/10 rounded-xl p-4 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-slate-400 mb-2">Vacías</p>
+                    <p class="text-3xl font-black text-slate-300">${vacias.toLocaleString()}</p>
+                </div>
+                <div class="bg-purple-900/30 border border-purple-400/30 rounded-xl p-4 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-purple-300 mb-2">% Ocupación</p>
+                    <p class="text-3xl font-black text-purple-300">${pct}%</p>
+                </div>
+            `;
+
+            renderOcupBar('ocup-picking', picking, 'purple');
+            renderOcupBar('ocup-altura',  altura,  'blue');
+        }
+
+        function renderOcupBar(id, locs, color) {
+            const total = locs.length;
+            const ocup  = locs.filter(r => (r['OCUPACION'] || '').trim().toUpperCase() === 'OCUPADA').length;
+            const vac   = total - ocup;
+            const pct   = total > 0 ? Math.round((ocup / total) * 100) : 0;
+            const gradMap = { purple: 'from-purple-700 to-purple-400', blue: 'from-blue-700 to-blue-400' };
+            const txtMap  = { purple: 'text-purple-400', blue: 'text-blue-400' };
+            document.getElementById(id).innerHTML = `
+                <div class="flex justify-between text-[11px] mb-2">
+                    <span class="text-slate-400">Ocupadas: <span class="font-black text-white">${ocup}</span></span>
+                    <span class="text-slate-400">Vacías: <span class="font-black text-white">${vac}</span></span>
+                    <span class="text-slate-400">Total: <span class="font-black text-white">${total}</span></span>
+                </div>
+                <div class="w-full bg-slate-900 h-5 rounded-full overflow-hidden border border-white/10">
+                    <div class="h-full bg-gradient-to-r ${gradMap[color]} rounded-full transition-all duration-1000 flex items-center justify-end pr-2" style="width:${pct}%">
+                        ${pct > 15 ? `<span class="text-[9px] font-black text-white">${pct}%</span>` : ''}
+                    </div>
+                </div>
+                <p class="text-right text-[10px] ${txtMap[color]} font-black mt-1">${pct}% ocupado</p>
+            `;
+        }
+
+        // ══════════════════════════════════════════════════════
+        // SECCIÓN NUEVA 2: FICHA SEMANAL DE PERFORMANCE
+        // ══════════════════════════════════════════════════════
+        function renderFichaSemanal(pData, cData) {
+            const today = new Date();
+            const dow = today.getDay();
+            const daysToMon = dow === 0 ? 6 : dow - 1;
+
+            const thisMonday = new Date(today); thisMonday.setDate(today.getDate() - daysToMon); thisMonday.setHours(0,0,0,0);
+            const thisSunday = new Date(thisMonday); thisSunday.setDate(thisMonday.getDate() + 6); thisSunday.setHours(23,59,59,999);
+            const lastMonday = new Date(thisMonday); lastMonday.setDate(thisMonday.getDate() - 7);
+            const lastSunday = new Date(lastMonday); lastSunday.setDate(lastMonday.getDate() + 6); lastSunday.setHours(23,59,59,999);
+
+            const fmt = d => `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
+            document.getElementById('week-col-1').textContent = `${fmt(thisMonday)} — ${fmt(thisSunday)}`;
+            document.getElementById('week-col-2').textContent = `${fmt(lastMonday)} — ${fmt(lastSunday)}`;
+            document.getElementById('semanal-badge-curr').textContent = `Sem. ${fmt(thisMonday)}`;
+            document.getElementById('semanal-badge-prev').textContent = `Sem. ${fmt(lastMonday)}`;
+
+            const parseDate = s => {
+                if (!s) return null;
+                const p = s.trim().split('/');
+                return p.length === 3 ? new Date(+p[2], +p[1]-1, +p[0]) : null;
+            };
+
+            const filterPick = (from, to) => pData.filter(r => { const d = parseDate(r['Fecha']); return d && d >= from && d <= to; });
+            const pickCurr = filterPick(thisMonday, thisSunday);
+            const pickPrev = filterPick(lastMonday, lastSunday);
+
+            const calcMetrics = (pickW) => {
+                const skusOut   = new Set(pickW.map(r => r['sku'])).size;
+                const unidOut   = Math.round(pickW.reduce((s, r) => s + (parseFloat(r['Cantidad']) || 0), 0));
+                const ubPick    = new Set(pickW.map(r => r['Ubicacion Origen'])).size;
+                const cicLocs   = new Set(cData.map(r => r['LOC']));
+                const skusInv   = new Set(cData.map(r => r['SKU'])).size;
+                const unidInv   = Math.round(cData.reduce((s, r) => s + (parseFloat(r['Fisico']) || 0), 0));
+                const ubInv     = cicLocs.size;
+                const ubOK      = cData.filter(r => parseFloat(r['Diferencia']) === 0).length;
+                const ubNOK     = cData.filter(r => parseFloat(r['Diferencia']) !== 0).length;
+                const unNOK     = Math.round(cData.reduce((s, r) => { const d = parseFloat(r['Diferencia']); return s + (d !== 0 ? d : 0); }, 0));
+                const skusNOK   = new Set(cData.filter(r => parseFloat(r['Diferencia']) !== 0).map(r => r['SKU'])).size;
+                const ubPend    = [...new Set(pickW.map(r => r['Ubicacion Origen']))].filter(l => !cicLocs.has(l)).length;
+                return { skusOut, unidOut, ubPick, skusInv, unidInv, ubInv, ubOK, ubNOK, unNOK, skusNOK, ubPend };
+            };
+
+            const curr = calcMetrics(pickCurr);
+            const prev = calcMetrics(pickPrev);
+
+            const acc = (a, b) => (b && b !== 0) ? (a / b * 100).toFixed(2) + '%' : '—';
+
+            const rows = [
+                { label: 'SKUs OUT',        cat: 'gray',   cQ: curr.skusOut,  cA: '—',                              pQ: prev.skusOut,  pA: '—' },
+                { label: 'Unid OUT',        cat: 'gray',   cQ: curr.unidOut,  cA: '—',                              pQ: prev.unidOut,  pA: '—' },
+                { label: 'Ub. Pickeadas',   cat: 'gray',   cQ: curr.ubPick,   cA: '—',                              pQ: prev.ubPick,   pA: '—' },
+                { label: 'SKUs Invent.',    cat: 'orange', cQ: curr.skusInv,  cA: acc(curr.skusInv, curr.skusOut),  pQ: prev.skusInv,  pA: acc(prev.skusInv, prev.skusOut)  },
+                { label: 'Unid. Invent.',   cat: 'orange', cQ: curr.unidInv,  cA: acc(curr.unidInv, curr.unidOut),  pQ: prev.unidInv,  pA: acc(prev.unidInv, prev.unidOut)  },
+                { label: 'Ub. Invent.',     cat: 'orange', cQ: curr.ubInv,    cA: acc(curr.ubInv, curr.ubPick),     pQ: prev.ubInv,    pA: acc(prev.ubInv, prev.ubPick)    },
+                { label: 'Ub. OK',          cat: 'orange', cQ: curr.ubOK,     cA: acc(curr.ubOK, curr.ubInv),       pQ: prev.ubOK,     pA: acc(prev.ubOK, prev.ubInv)      },
+                { label: 'Ub NO OK',        cat: 'orange', cQ: curr.ubNOK,    cA: acc(curr.ubNOK, curr.ubInv),      pQ: prev.ubNOK,    pA: acc(prev.ubNOK, prev.ubInv)     },
+                { label: 'Un. NO OK',       cat: 'orange', cQ: curr.unNOK,    cA: acc(curr.unNOK, curr.unidInv),    pQ: prev.unNOK,    pA: acc(prev.unNOK, prev.unidInv)   },
+                { label: 'SKUs NO OK',      cat: 'orange', cQ: curr.skusNOK,  cA: acc(curr.skusNOK, curr.skusInv),  pQ: prev.skusNOK,  pA: acc(prev.skusNOK, prev.skusInv) },
+                { label: 'Ub. Pend (pick)', cat: 'orange', cQ: curr.ubPend,   cA: acc(curr.ubPend, curr.ubPick),    pQ: prev.ubPend,   pA: acc(prev.ubPend, prev.ubPick)   },
+            ];
+
+            const body = document.getElementById('semanal-body');
+            body.innerHTML = '';
+            rows.forEach((row, i) => {
+                const isGray   = row.cat === 'gray';
+                const isDivider = i === 2; // After Ub. Pickeadas
+                const tr = document.createElement('tr');
+                tr.className = `${isGray ? 'bg-slate-800/30' : 'bg-orange-950/10'} hover:bg-white/5 transition-colors ${isDivider ? 'border-b-2 border-yellow-600/30' : ''}`;
+                tr.innerHTML = `
+                    <td class="px-6 py-3 font-bold text-slate-200 border-l-4 ${isGray ? 'border-slate-600' : 'border-orange-500/50'}">${row.label}</td>
+                    <td class="px-6 py-3 text-center font-black text-white text-sm">${row.cQ !== undefined ? row.cQ.toLocaleString() : '—'}</td>
+                    <td class="px-6 py-3 text-center text-yellow-400/70 italic text-[11px]">${row.cA}</td>
+                    <td class="px-6 py-3 text-center font-bold text-slate-400">${row.pQ !== undefined ? row.pQ.toLocaleString() : '—'}</td>
+                    <td class="px-6 py-3 text-center text-slate-600 italic text-[11px]">${row.pA}</td>
+                `;
+                body.appendChild(tr);
+            });
         }
     </script>
 </body>
