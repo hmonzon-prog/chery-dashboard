@@ -136,6 +136,26 @@
             </div>
         </div>
 
+        <!-- KPIs STOCK CHERY -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-card p-6 border-l-4 border-blue-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">SKUs en Stock (CHERY)</p>
+                <div class="flex items-end justify-between">
+                    <h3 id="val-chery-skus" class="text-4xl font-black text-blue-400">--</h3>
+                    <div class="p-2 bg-blue-600/10 rounded-lg text-blue-400"><i data-lucide="package" class="w-5 h-5"></i></div>
+                </div>
+                <p class="text-[9px] text-slate-500 mt-1">SKUs con stock físico > 0</p>
+            </div>
+            <div class="glass-card p-6 border-l-4 border-blue-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Unidades en Stock (CHERY)</p>
+                <div class="flex items-end justify-between">
+                    <h3 id="val-chery-units" class="text-4xl font-black text-blue-400">--</h3>
+                    <div class="p-2 bg-blue-600/10 rounded-lg text-blue-400"><i data-lucide="boxes" class="w-5 h-5"></i></div>
+                </div>
+                <p class="text-[9px] text-slate-500 mt-1">Suma de stock físico</p>
+            </div>
+        </div>
+
         <!-- CHARTS & COBERTURA -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="glass-card p-8 lg:col-span-2">
@@ -383,7 +403,8 @@
             pick: `${BASE_PUB}?gid=1225922230&single=true&output=csv`,
             cic: `${BASE_PUB}?gid=0&single=true&output=csv`,
             hist: `${BASE_PUB}?gid=1269051725&single=true&output=csv`,
-            ocup: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ2T8KnjQ6Xzi7gxPtdOaqkHR6n8qwdQ6T_SSW1IScK9Sr448Ipg7ViS8F1MrgprdzMgXVYkZkWvm3/pub?output=csv'
+            ocup: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ2T8KnjQ6Xzi7gxPtdOaqkHR6n8qwdQ6T_SSW1IScK9Sr448Ipg7ViS8F1MrgprdzMgXVYkZkWvm3/pub?output=csv',
+            stock: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZxzz0Qaoxzl_hJulcXY9BcXILCt4mJOoZ2IcMccUjDZ-uUXgKu-sARefr-GsW_7HpO5jKd6Z4u7yd/pub?output=csv'
         };
 
         let currentChart = null;
@@ -405,17 +426,20 @@
                     fetch(`${URLS.pick}&cache=${Date.now()}`).then(r => r.text()),
                     fetch(`${URLS.cic}&cache=${Date.now()}`).then(r => r.text()),
                     fetch(`${URLS.hist}&cache=${Date.now()}`).then(r => r.text()),
-                    fetch(`${URLS.ocup}&cb=${Date.now()}`).then(r => r.text())
+                    fetch(`${URLS.ocup}&cb=${Date.now()}`).then(r => r.text()),
+                    fetch(`${URLS.stock}&cache=${Date.now()}`).then(r => r.text())
                 ]);
 
                 const pickData = Papa.parse(results[0], { header: true, skipEmptyLines: true }).data;
                 const cicData = Papa.parse(results[1], { header: true, skipEmptyLines: true }).data;
                 const histData = Papa.parse(results[2], { header: true, skipEmptyLines: true }).data;
                 const ocupData = Papa.parse(results[3], { header: true, skipEmptyLines: true }).data;
+                const stockData = Papa.parse(results[4], { header: true, skipEmptyLines: true }).data;
 
                 processData(pickData, cicData, histData);
                 renderOcupacion(ocupData);
                 renderFichaSemanal(pickData, cicData);
+                renderStockChery(stockData);
 
             } catch (err) {
                 console.error(err);
@@ -469,6 +493,14 @@
             document.getElementById('val-skus').innerText = uniqueSkus.toLocaleString();
             document.getElementById('val-units').innerText = Math.round(totalUnits).toLocaleString();
             document.getElementById('val-resolved').innerText = resolvedCount;
+
+            // KPIs Stock CHERY
+            const cheryCol = getCol(cData, ['Marca', 'marca', 'MARCA']);
+            const cheryData = cData.filter(r => (r[cheryCol] || '').trim().toUpperCase() === 'CHERY');
+            const cherySkus = new Set(cheryData.filter(r => parseFloat(r[cCols.fisico]) > 0).map(r => r[cCols.sku])).size;
+            const cheryUnits = cheryData.reduce((s, r) => s + (parseFloat(r[cCols.fisico]) || 0), 0);
+            document.getElementById('val-chery-skus').innerText = cherySkus.toLocaleString();
+            document.getElementById('val-chery-units').innerText = Math.round(cheryUnits).toLocaleString();
 
             // 2. Charts & Cobertura
             const pickLocs = new Set(pData.map(r => r[pCols.loc]));
@@ -702,6 +734,15 @@
 
             renderOcupBar('ocup-picking', picking, 'purple');
             renderOcupBar('ocup-altura',  altura,  'blue');
+        }
+
+        function renderStockChery(data) {
+            const cheryData = data.filter(r => (r['Marca'] || '').trim().toUpperCase() === 'CHERY');
+            const skusChery = new Set(cheryData.filter(r => parseFloat(r['Cant']) > 0).map(r => r['SKU'])).size;
+            const unitsChery = cheryData.reduce((s, r) => s + (parseFloat(r['Cant']) || 0), 0);
+
+            document.getElementById('val-chery-skus').innerText = skusChery.toLocaleString();
+            document.getElementById('val-chery-units').innerText = Math.round(unitsChery).toLocaleString();
         }
 
         function renderOcupBar(id, locs, color) {
