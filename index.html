@@ -233,6 +233,36 @@
             </div>
         </div>
 
+        <!-- OCUPACIÓN DEL DEPÓSITO CHERY -->
+        <div class="glass-card overflow-hidden">
+            <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
+                <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-purple-400">
+                    <i data-lucide="warehouse"></i> Ocupación del Depósito — CHERY
+                </h2>
+                <span class="text-[10px] text-slate-500 italic">Actualizado en tiempo real</span>
+            </div>
+            <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-4" id="ocup-kpis">
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+            </div>
+            <div class="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white/5 rounded-xl p-5 border border-white/10">
+                    <h3 class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="package" class="w-4 h-4"></i> PICKING
+                    </h3>
+                    <div id="ocup-picking"><div class="h-4 bg-slate-700 rounded animate-pulse"></div></div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-5 border border-white/10">
+                    <h3 class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4"></i> ALTURA
+                    </h3>
+                    <div id="ocup-altura"><div class="h-4 bg-slate-700 rounded animate-pulse"></div></div>
+                </div>
+            </div>
+        </div>
+
         <!-- SECCIÓN DE TABLAS DE ANÁLISIS -->
         <div class="space-y-8">
             
@@ -349,43 +379,8 @@
 
         </div>
 
-        <!-- ══════════════════════════════════════════════════ -->
-        <!-- SECCIÓN NUEVA 1: OCUPACIÓN DEL DEPÓSITO CHERY    -->
-        <!-- ══════════════════════════════════════════════════ -->
-        <div class="glass-card overflow-hidden">
-            <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
-                <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-purple-400">
-                    <i data-lucide="warehouse"></i> Ocupación del Depósito — CHERY
-                </h2>
-                <span class="text-[10px] text-slate-500 italic">Actualizado en tiempo real</span>
-            </div>
-            <!-- KPIs globales -->
-            <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-4" id="ocup-kpis">
-                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
-                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
-                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
-                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
-            </div>
-            <!-- Desglose por tipo -->
-            <div class="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white/5 rounded-xl p-5 border border-white/10">
-                    <h3 class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <i data-lucide="package" class="w-4 h-4"></i> PICKING
-                    </h3>
-                    <div id="ocup-picking"><div class="h-4 bg-slate-700 rounded animate-pulse"></div></div>
-                </div>
-                <div class="bg-white/5 rounded-xl p-5 border border-white/10">
-                    <h3 class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <i data-lucide="layers" class="w-4 h-4"></i> ALTURA
-                    </h3>
-                    <div id="ocup-altura"><div class="h-4 bg-slate-700 rounded animate-pulse"></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ══════════════════════════════════════════════════ -->
-        <!-- SECCIÓN NUEVA 2: FICHA SEMANAL DE PERFORMANCE    -->
-        <!-- ══════════════════════════════════════════════════ -->
+        <!-- FICHA SEMANAL DE PERFORMANCE -->
+        
         <div class="glass-card overflow-hidden">
             <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
                 <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-yellow-400">
