@@ -522,18 +522,16 @@
                 status: getCol(hData, ['ESTADO', 'STATUS'])
             };
 
-            // 1. KPIs
+            // 1. KPIs - PICKING
             const uniqueOrders = new Set(pData.map(r => r[pCols.order])).size;
             const uniqueSkus = new Set(pData.map(r => r[pCols.sku])).size;
             const totalUnits = pData.reduce((s, r) => s + (parseFloat(r[pCols.qty]) || 0), 0);
-            const resolvedCount = cData.filter(r => (r[cCols.status] || '').trim().toUpperCase() === 'RESUELTO').length + 
-                                (hData.filter(r => (r[hCols.status] || '').trim().toUpperCase() === 'RESUELTO').length || 0);
 
             document.getElementById('val-orders').innerText = uniqueOrders.toLocaleString();
             document.getElementById('val-skus').innerText = uniqueSkus.toLocaleString();
             document.getElementById('val-units').innerText = Math.round(totalUnits).toLocaleString();
 
-            // KPIs Inventario (Cíclico)
+            // KPIs - INVENTARIO (Cíclico)
             const invLocs = new Set(cData.map(r => r[cCols.loc])).size;
             const invSkus = new Set(cData.map(r => r[cCols.sku])).size;
             const invUnits = cData.reduce((s, r) => s + (parseFloat(r[cCols.fisico]) || 0), 0);
