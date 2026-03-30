@@ -187,11 +187,11 @@
                     <div class="p-2 bg-green-600/10 rounded-lg text-green-400"><i data-lucide="layers" class="w-5 h-5"></i></div>
                 </div>
             </div>
-            <div class="glass-card p-6 border-l-4 border-amber-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Diferencias Resueltas</p>
+            <div class="glass-card p-6 border-l-4 border-emerald-500" style="background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(6,78,59,0.1) 100%);">
+                <p class="text-[10px] font-bold text-emerald-300 uppercase tracking-widest mb-1">Diferencias Resueltas</p>
                 <div class="flex items-end justify-between">
-                    <h3 id="val-resolved" class="text-4xl font-black text-amber-400">--</h3>
-                    <div class="p-2 bg-amber-600/10 rounded-lg text-amber-400"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+                    <h3 id="val-resolved" class="text-4xl font-black text-emerald-400">--</h3>
+                    <div class="p-3 bg-emerald-600/30 rounded-xl text-emerald-300"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
                 </div>
             </div>
         </div>
@@ -661,17 +661,40 @@
         function renderChart(total, audited) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (currentChart) currentChart.destroy();
+            
+            // Plugin para mostrar valores en las barras
+            const datalabelsPlugin = {
+                id: 'datalabels',
+                afterDatasetsDraw(chart) {
+                    const { ctx } = chart;
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const meta = chart.getDatasetMeta(i);
+                        meta.data.forEach((bar, index) => {
+                            const value = dataset.data[index];
+                            ctx.save();
+                            ctx.fillStyle = '#ffffff';
+                            ctx.font = 'bold 18px Inter';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+                            ctx.fillText(value, bar.x, bar.y - 8);
+                            ctx.restore();
+                        });
+                    });
+                }
+            };
+
             currentChart = new Chart(ctx, {
                 type: 'bar',
+                plugins: [datalabelsPlugin],
                 data: {
                     labels: ['LOCS. PICKEADAS', 'AUDITADAS (DENTRO DEL PICKING)'],
                     datasets: [{
                         data: [total, audited],
-                        backgroundColor: ['rgba(196, 30, 58, 0.4)', 'rgba(34, 197, 94, 0.8)'],
+                        backgroundColor: ['rgba(196, 30, 58, 0.6)', 'rgba(34, 197, 94, 0.8)'],
                         borderColor: ['#C41E3A', '#22c55e'],
                         borderWidth: 2,
                         borderRadius: 8,
-                        barThickness: 60
+                        barThickness: 80
                     }]
                 },
                 options: {
