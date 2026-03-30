@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHERY | EstaciÃ³n de Inteligencia LogÃ­stica</title>
+    <title>CHERY | Estación de Inteligencia Logística</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -77,8 +77,8 @@
                 <span class="text-red-700 font-black text-2xl tracking-tighter italic">CHERY</span>
             </div>
             <div>
-                <h1 class="text-xl font-bold tracking-tight text-white uppercase italic">Consola de Inteligencia LogÃ­stica</h1>
-                <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold tracking-widest">EstaciÃ³n de GestiÃ³n y AuditorÃ­a V3</p>
+                <h1 class="text-xl font-bold tracking-tight text-white uppercase italic">Consola de Inteligencia Logística</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold tracking-widest">Estación de Gestión y Auditoría V3</p>
             </div>
         </div>
         
@@ -99,7 +99,7 @@
         <div id="error-msg" class="hidden bg-red-600/20 border border-red-500 text-red-500 p-4 rounded-lg flex items-center gap-4 animate-bounce">
             <i data-lucide="alert-octagon"></i>
             <div>
-                <p class="font-bold">Error de ConexiÃ³n</p>
+                <p class="font-bold">Error de Conexión</p>
                 <p id="error-text" class="text-xs">No se pudieron leer las tablas externas.</p>
             </div>
         </div>
@@ -107,21 +107,21 @@
         <!-- KPIs SUPERIORES (A LA FECHA) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="glass-card p-6 stat-card-border">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ã“rdenes Totales (a la fecha)</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Órdenes Totales (a la fecha)</p>
                 <div class="flex items-end justify-between">
                     <h3 id="val-orders" class="text-4xl font-black">--</h3>
                     <div class="p-2 bg-red-600/10 rounded-lg text-red-500"><i data-lucide="clipboard-list" class="w-5 h-5"></i></div>
                 </div>
             </div>
             <div class="glass-card p-6 stat-card-border">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">SKUs Trabajados (HistÃ³rico)</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">SKUs Trabajados (Histórico)</p>
                 <div class="flex items-end justify-between">
                     <h3 id="val-skus" class="text-4xl font-black">--</h3>
                     <div class="p-2 bg-red-600/10 rounded-lg text-red-500"><i data-lucide="box" class="w-5 h-5"></i></div>
                 </div>
             </div>
             <div class="glass-card p-6 stat-card-border">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Unidades Picking (HistÃ³rico)</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Unidades Picking (Histórico)</p>
                 <div class="flex items-end justify-between">
                     <h3 id="val-units" class="text-4xl font-black">--</h3>
                     <div class="p-2 bg-red-600/10 rounded-lg text-red-500"><i data-lucide="layers" class="w-5 h-5"></i></div>
@@ -173,7 +173,7 @@
             </div>
         </div>
 
-        <!-- SECCIÃ“N DE TABLAS DE ANÃLISIS -->
+        <!-- SECCIÓN DE TABLAS DE ANÁLISIS -->
         <div class="space-y-8">
             
             <!-- TABLE 1: DIFERENCIAS DE STOCK -->
@@ -181,14 +181,14 @@
                 <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
                     <div class="flex items-center gap-3">
                         <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-red-500">
-                            <i data-lucide="alert-circle"></i> Diferencias Detectadas (FÃ­sico vs LÃ³gico)
+                            <i data-lucide="alert-circle"></i> Diferencias Detectadas (Físico vs Lógico)
                         </h2>
                         <span id="badge-errors" class="bg-red-600/20 text-red-500 text-[10px] font-black px-2 py-0.5 rounded border border-red-500/30">0</span>
                     </div>
                     <div class="flex items-center gap-4 flex-1 lg:max-w-xl">
                         <div class="relative flex-1">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                            <input type="text" id="search-errors" onkeyup="filterTable('error-body', this.value)" placeholder="Buscar SKU o UbicaciÃ³n..." class="w-full bg-slate-950 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-xs focus:ring-1 focus:ring-red-500 outline-none">
+                            <input type="text" id="search-errors" onkeyup="filterTable('error-body', this.value)" placeholder="Buscar SKU o Ubicación..." class="w-full bg-slate-950 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-xs focus:ring-1 focus:ring-red-500 outline-none">
                         </div>
                         <button onclick="copyTableSkus('error-body')" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-400 transition-all shadow-md" title="Copiar SKUs">
                             <i data-lucide="copy" class="w-4 h-4"></i>
@@ -202,12 +202,12 @@
                     <table class="w-full text-left text-xs border-collapse">
                         <thead class="sticky top-0 bg-slate-900 text-slate-500 z-10 shadow-md">
                             <tr>
-                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">SKU / CÃ³digo</th>
-                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">UbicaciÃ³n</th>
-                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase text-center">LÃ³gico</th>
-                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase text-center">FÃ­sico</th>
+                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">SKU / Código</th>
+                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">Ubicación</th>
+                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase text-center">Lógico</th>
+                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase text-center">Físico</th>
                                 <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase text-center">DIF</th>
-                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">ObservaciÃ³n</th>
+                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">Observación</th>
                                 <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">Estado</th>
                             </tr>
                         </thead>
@@ -216,19 +216,19 @@
                 </div>
             </div>
 
-            <!-- TABLE 2: PENDIENTES DE AUDITORÃA -->
+            <!-- TABLE 2: PENDIENTES DE AUDITORÍA -->
             <div class="glass-card overflow-hidden">
                 <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
                     <div class="flex items-center gap-3">
                         <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-blue-400">
-                            <i data-lucide="clock"></i> Ubicaciones Pendientes (Picking sin AuditorÃ­a)
+                            <i data-lucide="clock"></i> Ubicaciones Pendientes (Picking sin Auditoría)
                         </h2>
                         <span id="badge-pending" class="bg-blue-600/20 text-blue-400 text-[10px] font-black px-2 py-0.5 rounded border border-blue-400/30">0</span>
                     </div>
                     <div class="flex items-center gap-4 flex-1 lg:max-w-xl">
                         <div class="relative flex-1">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
-                            <input type="text" id="search-pending" onkeyup="filterTable('pending-body', this.value)" placeholder="Buscar UbicaciÃ³n..." class="w-full bg-slate-950 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-xs focus:ring-1 focus:ring-blue-500 outline-none">
+                            <input type="text" id="search-pending" onkeyup="filterTable('pending-body', this.value)" placeholder="Buscar Ubicación..." class="w-full bg-slate-950 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-xs focus:ring-1 focus:ring-blue-500 outline-none">
                         </div>
                         <button onclick="exportTableToExcel('pending-body', 'PENDIENTES_CHERY')" class="bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 px-4 py-2 rounded-lg text-xs font-bold text-blue-400 flex items-center gap-2 transition-all">
                             <i data-lucide="file-down" class="w-4 h-4"></i> EXCEL
@@ -239,10 +239,10 @@
                     <table class="w-full text-left text-xs">
                         <thead class="sticky top-0 bg-slate-900 text-slate-500 z-10 shadow-md">
                             <tr>
-                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">UbicaciÃ³n</th>
-                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">Ãšlt. SKU Movido</th>
+                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">Ubicación</th>
+                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">Últ. SKU Movido</th>
                                 <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase">Cant. Movimientos</th>
-                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase text-right">AcciÃ³n</th>
+                                <th class="px-8 py-4 font-black tracking-widest text-[10px] uppercase text-right">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="pending-body" class="divide-y divide-white/5"></tbody>
@@ -275,27 +275,27 @@
                                 <th class="px-8 py-4 font-black tracking-widest text-[10px]">SKU</th>
                                 <th class="px-8 py-4 font-black tracking-widest text-[10px]">LOC</th>
                                 <th class="px-8 py-4 font-black tracking-widest text-[10px] text-center">DIF</th>
-                                <th class="px-8 py-4 font-black tracking-widest text-[10px]">OBSERVACIÃ“N / ACCIÃ“N</th>
+                                <th class="px-8 py-4 font-black tracking-widest text-[10px]">OBSERVACIÓN / ACCIÓN</th>
                                 <th class="px-8 py-4 font-black tracking-widest text-[10px]">ESTADO</th>
                             </tr>
                         </thead>
                         <tbody id="history-body" class="divide-y divide-white/5"></tbody>
                     </table>
                     <div id="no-history" class="p-20 text-center text-slate-600 hidden">
-                        <p class="text-xs italic opacity-50">CargÃ¡ datos en la pestaÃ±a 'HISTORIAL DISCREPANCIAS' para ver el seguimiento.</p>
+                        <p class="text-xs italic opacity-50">Cargá datos en la pestaña 'HISTORIAL DISCREPANCIAS' para ver el seguimiento.</p>
                     </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-        <!-- SECCIÃ“N NUEVA 1: OCUPACIÃ“N DEL DEPÃ“SITO CHERY    -->
-        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- SECCIÓN NUEVA 1: OCUPACIÓN DEL DEPÓSITO CHERY    -->
+        <!-- ══════════════════════════════════════════════════ -->
         <div class="glass-card overflow-hidden">
             <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
                 <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-purple-400">
-                    <i data-lucide="warehouse"></i> OcupaciÃ³n del DepÃ³sito â€” CHERY
+                    <i data-lucide="warehouse"></i> Ocupación del Depósito — CHERY
                 </h2>
                 <span class="text-[10px] text-slate-500 italic">Actualizado en tiempo real</span>
             </div>
@@ -323,9 +323,9 @@
             </div>
         </div>
 
-        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-        <!-- SECCIÃ“N NUEVA 2: FICHA SEMANAL DE PERFORMANCE    -->
-        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- SECCIÓN NUEVA 2: FICHA SEMANAL DE PERFORMANCE    -->
+        <!-- ══════════════════════════════════════════════════ -->
         <div class="glass-card overflow-hidden">
             <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
                 <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-yellow-400">
@@ -336,7 +336,7 @@
                         <i data-lucide="chevron-left" class="w-4 h-4"></i>
                     </button>
                     <div class="flex flex-col items-center gap-0.5">
-                        <span id="semanal-week-label" class="text-yellow-400 font-black text-xs tracking-widest">--/-- â€” --/--</span>
+                        <span id="semanal-week-label" class="text-yellow-400 font-black text-xs tracking-widest">--/-- — --/--</span>
                         <input type="date" id="semanal-date-input" onchange="jumpToWeek(this.value)" class="bg-slate-800/50 border border-white/10 text-[10px] text-slate-400 text-center rounded px-2 py-1 outline-none cursor-pointer hover:border-yellow-500/30 transition-all">
                     </div>
                     <button onclick="navigateSemanal(1)" class="bg-slate-800 hover:bg-slate-700 border border-white/10 p-2 rounded-lg text-slate-400 hover:text-yellow-400 transition-all" title="Semana siguiente">
@@ -352,7 +352,7 @@
                 <table class="w-full text-xs">
                     <thead class="sticky top-0 bg-slate-950 text-slate-500 z-10">
                         <tr>
-                            <th class="px-6 py-4 text-left font-black tracking-widest uppercase text-[10px] w-48">DescripciÃ³n</th>
+                            <th class="px-6 py-4 text-left font-black tracking-widest uppercase text-[10px] w-48">Descripción</th>
                             <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-yellow-400" id="week-col-1">Semana Actual</th>
                             <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-600">Accuracy %</th>
                             <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-400" id="week-col-2">Semana Ant.</th>
@@ -376,7 +376,7 @@
     </div>
 
     <script>
-        // CONFIGURACIÃ“N DE ORIGEN DE DATOS (GIDs INVESTIGADOS)
+        // CONFIGURACIÓN DE ORIGEN DE DATOS (GIDs INVESTIGADOS)
         const BASE_PUB = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR9WHAJcHzkHXpRGWGkareSd981wmlfQx3-J7Dqxm_RrHmahDAgZnNZCqwvaVfNPfm5SNlyizldMei5/pub";
         
         const URLS = {
@@ -443,8 +443,8 @@
             const cCols = {
                 sku: getCol(cData, ['SKU', 'cod']),
                 loc: getCol(cData, ['LOC', 'Ubicacion']),
-                logico: getCol(cData, ['Logico', 'LÃ³gico', 'Stock']),
-                fisico: getCol(cData, ['Fisico', 'FÃ­sico']),
+                logico: getCol(cData, ['Logico', 'Lógico', 'Stock']),
+                fisico: getCol(cData, ['Fisico', 'Físico']),
                 diff: getCol(cData, ['Diferencia', 'dif']),
                 obs: getCol(cData, ['OBSERVACION 2', 'Observacion', 'OBSERVACION']),
                 status: getCol(cData, ['ESTADO DE DIFERENCIA', 'Estado'])
@@ -452,9 +452,9 @@
             const hCols = {
                 fecha: getCol(hData, ['FECHA', 'Fecha']),
                 sku: getCol(hData, ['SKU', 'cod']),
-                loc: getCol(hData, ['UBICACIÃ“N', 'LOC', 'Ubicacion']),
+                loc: getCol(hData, ['UBICACIÓN', 'LOC', 'Ubicacion']),
                 diff: getCol(hData, ['DIFERENCIA', 'DIF']),
-                obs: getCol(hData, ['OBSERVACIÃ“N', 'OBSEVACION', 'OBSERVACION 2']),
+                obs: getCol(hData, ['OBSERVACIÓN', 'OBSEVACION', 'OBSERVACION 2']),
                 status: getCol(hData, ['ESTADO', 'STATUS'])
             };
 
@@ -514,7 +514,7 @@
                     <td class="px-8 py-4 text-center font-black ${d < 0 ? 'text-red-500' : 'text-blue-400'}">${d > 0 ? '+' : ''}${d}</td>
                     <td class="px-8 py-4 text-[10px] italic text-slate-400 max-w-xs truncate" title="${r[cols.obs] || ''}">${r[cols.obs] || '---'}</td>
                     <td class="px-8 py-4">
-                        <span class="px-2 py-0.5 rounded text-[9px] font-black tracking-widest ${status === 'RESUELTO' ? 'bg-green-600' : status === 'EN ANÃLISIS' ? 'bg-yellow-600' : 'bg-red-600 animate-pulse'}">
+                        <span class="px-2 py-0.5 rounded text-[9px] font-black tracking-widest ${status === 'RESUELTO' ? 'bg-green-600' : status === 'EN ANÁLISIS' ? 'bg-yellow-600' : 'bg-red-600 animate-pulse'}">
                             ${status}
                         </span>
                     </td>
@@ -534,7 +534,7 @@
                 if (!auditedSet.has(loc)) {
                     if (!pendingMap.has(loc)) pendingMap.set(loc, { loc, sku: r[cols.sku], count: 0 });
                     pendingMap.get(loc).count++;
-                    pendingMap.get(loc).sku = r[cols.sku]; // Ãšltimo SKU movido
+                    pendingMap.get(loc).sku = r[cols.sku]; // Último SKU movido
                 }
             });
 
@@ -613,7 +613,7 @@
             });
         }
 
-        // TOOLING: FILTRO INSTANTÃNEO
+        // TOOLING: FILTRO INSTANTÁNEO
         function filterTable(tableId, query) {
             const rows = document.getElementById(tableId).getElementsByTagName('tr');
             const q = query.toLowerCase();
@@ -668,9 +668,9 @@
             lucide.createIcons();
         }
 
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-        // SECCIÃ“N NUEVA 1: OCUPACIÃ“N DEL DEPÃ“SITO
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ══════════════════════════════════════════════════════
+        // SECCIÓN NUEVA 1: OCUPACIÓN DEL DEPÓSITO
+        // ══════════════════════════════════════════════════════
         function renderOcupacion(data) {
             const chery = data.filter(r => (r['SECTOR'] || '').trim().toUpperCase() === 'CHERY');
             const total = chery.length;
@@ -691,11 +691,11 @@
                     <p class="text-3xl font-black text-green-400">${ocupadas.toLocaleString()}</p>
                 </div>
                 <div class="bg-slate-800/50 border border-white/10 rounded-xl p-4 text-center">
-                    <p class="text-[9px] uppercase tracking-widest text-slate-400 mb-2">VacÃ­as</p>
+                    <p class="text-[9px] uppercase tracking-widest text-slate-400 mb-2">Vacías</p>
                     <p class="text-3xl font-black text-slate-300">${vacias.toLocaleString()}</p>
                 </div>
                 <div class="bg-purple-900/30 border border-purple-400/30 rounded-xl p-4 text-center">
-                    <p class="text-[9px] uppercase tracking-widest text-purple-300 mb-2">% OcupaciÃ³n</p>
+                    <p class="text-[9px] uppercase tracking-widest text-purple-300 mb-2">% Ocupación</p>
                     <p class="text-3xl font-black text-purple-300">${pct}%</p>
                 </div>
             `;
@@ -714,7 +714,7 @@
             document.getElementById(id).innerHTML = `
                 <div class="flex justify-between text-[11px] mb-2">
                     <span class="text-slate-400">Ocupadas: <span class="font-black text-white">${ocup}</span></span>
-                    <span class="text-slate-400">VacÃ­as: <span class="font-black text-white">${vac}</span></span>
+                    <span class="text-slate-400">Vacías: <span class="font-black text-white">${vac}</span></span>
                     <span class="text-slate-400">Total: <span class="font-black text-white">${total}</span></span>
                 </div>
                 <div class="w-full bg-slate-900 h-5 rounded-full overflow-hidden border border-white/10">
@@ -726,9 +726,9 @@
             `;
         }
 
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-        // SECCIÃ“N NUEVA 2: FICHA SEMANAL DE PERFORMANCE
-        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+        // ══════════════════════════════════════════════════════
+        // SECCIÓN NUEVA 2: FICHA SEMANAL DE PERFORMANCE
+        // ══════════════════════════════════════════════════════
         function renderFichaSemanal(pData, cData, baseDate) {
             // Store globally for navigation
             _globalPickData = pData;
@@ -746,11 +746,11 @@
             const lastSunday = new Date(lastMonday); lastSunday.setDate(lastMonday.getDate() + 6); lastSunday.setHours(23,59,59,999);
 
             const fmt = d => `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
-            document.getElementById('week-col-1').textContent = `${fmt(thisMonday)} â€” ${fmt(thisSunday)}`;
-            document.getElementById('week-col-2').textContent = `${fmt(lastMonday)} â€” ${fmt(lastSunday)}`;
+            document.getElementById('week-col-1').textContent = `${fmt(thisMonday)} — ${fmt(thisSunday)}`;
+            document.getElementById('week-col-2').textContent = `${fmt(lastMonday)} — ${fmt(lastSunday)}`;
             document.getElementById('semanal-badge-curr').textContent = `Sem. ${fmt(thisMonday)}`;
             document.getElementById('semanal-badge-prev').textContent = `Sem. ${fmt(lastMonday)}`;
-            document.getElementById('semanal-week-label').textContent = `${fmt(thisMonday)} â€” ${fmt(thisSunday)}`;
+            document.getElementById('semanal-week-label').textContent = `${fmt(thisMonday)} — ${fmt(thisSunday)}`;
             const isoDate = `${thisMonday.getFullYear()}-${(thisMonday.getMonth()+1).toString().padStart(2,'0')}-${thisMonday.getDate().toString().padStart(2,'0')}`;
             const inp = document.getElementById('semanal-date-input');
             if (inp) inp.value = isoDate;
@@ -800,12 +800,12 @@
             const curr = calcMetrics(pickCurr, cicCurr);
             const prev = calcMetrics(pickPrev, cicPrev);
 
-            const acc = (a, b) => (b && b !== 0) ? (a / b * 100).toFixed(2) + '%' : 'â€”';
+            const acc = (a, b) => (b && b !== 0) ? (a / b * 100).toFixed(2) + '%' : '—';
 
             const rows = [
-                { label: 'SKUs OUT',        cat: 'gray',   cQ: curr.skusOut,  cA: 'â€”',                              pQ: prev.skusOut,  pA: 'â€”' },
-                { label: 'Unid OUT',        cat: 'gray',   cQ: curr.unidOut,  cA: 'â€”',                              pQ: prev.unidOut,  pA: 'â€”' },
-                { label: 'Ub. Pickeadas',   cat: 'gray',   cQ: curr.ubPick,   cA: 'â€”',                              pQ: prev.ubPick,   pA: 'â€”' },
+                { label: 'SKUs OUT',        cat: 'gray',   cQ: curr.skusOut,  cA: '—',                              pQ: prev.skusOut,  pA: '—' },
+                { label: 'Unid OUT',        cat: 'gray',   cQ: curr.unidOut,  cA: '—',                              pQ: prev.unidOut,  pA: '—' },
+                { label: 'Ub. Pickeadas',   cat: 'gray',   cQ: curr.ubPick,   cA: '—',                              pQ: prev.ubPick,   pA: '—' },
                 { label: 'SKUs Invent.',    cat: 'orange', cQ: curr.skusInv,  cA: acc(curr.skusInv, curr.skusOut),  pQ: prev.skusInv,  pA: acc(prev.skusInv, prev.skusOut)  },
                 { label: 'Unid. Invent.',   cat: 'orange', cQ: curr.unidInv,  cA: acc(curr.unidInv, curr.unidOut),  pQ: prev.unidInv,  pA: acc(prev.unidInv, prev.unidOut)  },
                 { label: 'Ub. Invent.',     cat: 'orange', cQ: curr.ubInv,    cA: acc(curr.ubInv, curr.ubPick),     pQ: prev.ubInv,    pA: acc(prev.ubInv, prev.ubPick)    },
@@ -825,9 +825,9 @@
                 tr.className = `${isGray ? 'bg-slate-800/30' : 'bg-orange-950/10'} hover:bg-white/5 transition-colors ${isDivider ? 'border-b-2 border-yellow-600/30' : ''}`;
                 tr.innerHTML = `
                     <td class="px-6 py-3 font-bold text-slate-200 border-l-4 ${isGray ? 'border-slate-600' : 'border-orange-500/50'}">${row.label}</td>
-                    <td class="px-6 py-3 text-center font-black text-white text-sm">${row.cQ !== undefined ? row.cQ.toLocaleString() : 'â€”'}</td>
+                    <td class="px-6 py-3 text-center font-black text-white text-sm">${row.cQ !== undefined ? row.cQ.toLocaleString() : '—'}</td>
                     <td class="px-6 py-3 text-center text-yellow-400/70 italic text-[11px]">${row.cA}</td>
-                    <td class="px-6 py-3 text-center font-bold text-slate-400">${row.pQ !== undefined ? row.pQ.toLocaleString() : 'â€”'}</td>
+                    <td class="px-6 py-3 text-center font-bold text-slate-400">${row.pQ !== undefined ? row.pQ.toLocaleString() : '—'}</td>
                     <td class="px-6 py-3 text-center text-slate-600 italic text-[11px]">${row.pA}</td>
                 `;
                 body.appendChild(tr);
@@ -836,4 +836,3 @@
     </script>
 </body>
 </html>
-v
