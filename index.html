@@ -763,12 +763,17 @@
 
             const filterPick = (from, to) => pData.filter(r => { const d = parseDate(r['Fecha']); return d && d >= from && d <= to; });
 
-            // Filter CIC by date if sheet has date column (FECHA/Fecha), else return all (fallback)
+            // Detectar si CIC tiene columna de fecha
+            const hasCicDate = cData.length > 0 && (
+                cData[0]['FECHA'] !== undefined ||
+                cData[0]['Fecha'] !== undefined ||
+                cData[0]['fecha'] !== undefined
+            );
+
+            // Filter CIC by date si tiene columna FECHA, sino devuelve todo (fallback)
             const filterCic = (from, to) => {
                 if (!cData || cData.length === 0) return [];
-                const first = cData[0];
-                const hasDate = first['FECHA'] !== undefined || first['Fecha'] !== undefined || first['fecha'] !== undefined;
-                if (!hasDate) return cData;
+                if (!hasCicDate) return cData;
                 return cData.filter(r => {
                     const raw = r['FECHA'] || r['Fecha'] || r['fecha'];
                     const d = parseDate(raw);
@@ -806,7 +811,7 @@
                 { label: 'SKUs OUT',        cat: 'gray',   cQ: curr.skusOut,  cA: '—',                              pQ: prev.skusOut,  pA: '—' },
                 { label: 'Unid OUT',        cat: 'gray',   cQ: curr.unidOut,  cA: '—',                              pQ: prev.unidOut,  pA: '—' },
                 { label: 'Ub. Pickeadas',   cat: 'gray',   cQ: curr.ubPick,   cA: '—',                              pQ: prev.ubPick,   pA: '—' },
-                { label: 'SKUs Invent.',    cat: 'orange', cQ: curr.skusInv,  cA: acc(curr.skusInv, curr.skusOut),  pQ: prev.skusInv,  pA: acc(prev.skusInv, prev.skusOut)  },
+                { label: 'SKUs Invent.',    cat: 'orange', cQ: curr.skusInv,  cA: acc(curr.skusInv - curr.skusNOK, curr.skusInv),  pQ: prev.skusInv,  pA: acc(prev.skusInv - prev.skusNOK, prev.skusInv)  },
                 { label: 'Unid. Invent.',   cat: 'orange', cQ: curr.unidInv,  cA: acc(curr.unidInv, curr.unidOut),  pQ: prev.unidInv,  pA: acc(prev.unidInv, prev.unidOut)  },
                 { label: 'Ub. Invent.',     cat: 'orange', cQ: curr.ubInv,    cA: acc(curr.ubInv, curr.ubPick),     pQ: prev.ubInv,    pA: acc(prev.ubInv, prev.ubPick)    },
                 { label: 'Ub. OK',          cat: 'orange', cQ: curr.ubOK,     cA: acc(curr.ubOK, curr.ubInv),       pQ: prev.ubOK,     pA: acc(prev.ubOK, prev.ubInv)      },
