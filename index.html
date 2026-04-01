@@ -527,7 +527,7 @@
             document.getElementById('val-units').innerText = Math.round(totalUnits).toLocaleString();
 
             // KPIs - INVENTARIO (Cíclico)
-            const invLocs = new Set(cData.map(r => r[cCols.loc])).size;
+            const invLocs = new Set(cData.map(r => r[cCols.loc]).filter(loc => loc && loc.trim() !== '')).size;
             const invSkus = new Set(cData.map(r => r[cCols.sku])).size;
             const invUnits = cData.reduce((s, r) => s + (parseFloat(r[cCols.fisico]) || 0), 0);
             const resolvedCount = cData.filter(r => (r[cCols.status] || '').trim().toUpperCase() === 'RESUELTO').length + 
