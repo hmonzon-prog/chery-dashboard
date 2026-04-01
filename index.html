@@ -962,17 +962,28 @@
             const cicPrev  = filterCic(lastMonday, lastSunday);
 
             const calcMetrics = (pickW, cicW) => {
+                // Filtrar filas con LOC vacío
+                const cicWF = cicW.filter(r => r['LOC'] && r['LOC'].trim() !== '');
                 const skusOut = new Set(pickW.map(r => r['sku'])).size;
                 const unidOut = Math.round(pickW.reduce((s, r) => s + (parseFloat(r['Cantidad']) || 0), 0));
                 const ubPick  = new Set(pickW.map(r => r['Ubicacion Origen'])).size;
-                const cicLocs = new Set(cicW.map(r => r['LOC']));
-                const skusInv = new Set(cicW.map(r => r['SKU'])).size;
-                const unidInv = Math.round(cicW.reduce((s, r) => s + (parseFloat(r['Fisico']) || 0), 0));
+                const cicLocs = new Set(cicWF.map(r => r['LOC']));
+                const skusInv = new Set(cicWF.map(r => r['SKU'])).size;
+                const unidInv = Math.round(cicWF.reduce((s, r) => s + (parseFloat(r['Fisico']) || 0), 0));
                 const ubInv   = cicLocs.size;
-                const ubOK    = cicW.filter(r => parseFloat(r['Diferencia']) === 0).length;
-                const ubNOK   = cicW.filter(r => parseFloat(r['Diferencia']) !== 0).length;
-                const unNOK   = Math.round(cicW.reduce((s, r) => { const d = parseFloat(r['Diferencia']); return s + (d !== 0 ? d : 0); }, 0));
-                const skusNOK = new Set(cicW.filter(r => parseFloat(r['Diferencia']) !== 0).map(r => r['SKU'])).size;
+                // Calcular ubicaciones únicas OK y NO OK
+                const locDiffs = {};
+                cicWF.forEach(r => {
+                    const loc = r['LOC'];
+                    if (!locDiffs[loc]) locDiffs[loc] = { hasDiff: false };
+                    if (parseFloat(r['Diferencia']) !== 0) {
+                        locDiffs[loc].hasDiff = true;
+                    }
+                });
+                const ubOK = Object.keys(locDiffs).filter(loc => !locDiffs[loc].hasDiff).length;
+                const ubNOK = Object.keys(locDiffs).filter(loc => locDiffs[loc].hasDiff).length;
+                const unNOK   = Math.round(cicWF.reduce((s, r) => { const d = parseFloat(r['Diferencia']); return s + (d !== 0 ? d : 0); }, 0));
+                const skusNOK = new Set(cicWF.filter(r => parseFloat(r['Diferencia']) !== 0).map(r => r['SKU'])).size;
                 const ubPend  = [...new Set(pickW.map(r => r['Ubicacion Origen']))].filter(l => !cicLocs.has(l)).length;
                 return { skusOut, unidOut, ubPick, skusInv, unidInv, ubInv, ubOK, ubNOK, unNOK, skusNOK, ubPend };
             };
