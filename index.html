@@ -1036,7 +1036,14 @@
             const curr = calcMetrics(pickCurr, cicCurr);
             const prev = calcMetrics(pickPrev, cicPrev);
 
-            const acc = (a, b) => (b && b !== 0) ? (a / b * 100).toFixed(2) + '%' : '—';
+            const acc = (a, b) => {
+                if (!b || b === 0) return '—';
+                const percentage = (a / b) * 100;
+                if (percentage > 100) {
+                    return '<span style="color: #22c55e; font-weight: bold; font-size: 16px;">✓</span>';
+                }
+                return percentage.toFixed(2) + '%';
+            };
 
             const rows = [
                 { label: 'SKUs OUT',        cat: 'gray',   cQ: curr.skusOut,  cA: '—',                              pQ: prev.skusOut,  pA: '—' },
