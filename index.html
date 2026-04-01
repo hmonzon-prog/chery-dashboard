@@ -160,10 +160,16 @@
         </div>
 
         <!-- KPIs - INVENTARIO -->
-        <div class="mb-2">
+        <div class="mb-2 flex flex-wrap justify-between items-center">
             <h2 class="text-[10px] font-bold text-green-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                 <i data-lucide="clipboard-check" class="w-4 h-4"></i> Inventario (Cíclico)
             </h2>
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-[10px] text-slate-400 uppercase">Filtrar por:</span>
+                <button onclick="filterInventoryByDays('today')" class="bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 px-3 py-1 rounded-lg text-[10px] font-bold text-green-400">Hoy</button>
+                <button onclick="filterInventoryByDays('all')" class="bg-slate-700/50 hover:bg-slate-700 border border-white/10 px-3 py-1 rounded-lg text-[10px] font-bold text-slate-300">Todos</button>
+                <input type="date" id="inventory-date-filter" onchange="filterInventoryByDate(this.value)" class="bg-slate-800/50 border border-white/10 text-[10px] text-slate-400 text-center rounded px-2 py-1 outline-none cursor-pointer hover:border-green-500/30 transition-all">
+            </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="glass-card p-6 border-l-4 border-green-500">
@@ -200,7 +206,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="glass-card p-8 lg:col-span-2">
                 <h2 class="font-bold flex items-center gap-2 uppercase tracking-tighter mb-8 text-slate-400">
-                    <i data-lucide="bar-chart-3" class="text-red-500"></i> Eficiencia: Pickeadas vs Auditadas
+                    <i data-lucide="bar-chart-3" class="text-red-500"></i> Eficiencia: Pickeadas vs Auditadas vs Inventariadas
                 </h2>
                 <div class="h-[300px]"><canvas id="mainChart"></canvas></div>
             </div>
@@ -446,6 +452,8 @@
         let semanalBaseDate = new Date();
         let _globalPickData = [];
         let _globalCicData  = [];
+        let _globalHistData = [];
+        let inventoryFilter = { type: 'all', date: null };
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -470,6 +478,11 @@
                 const histData = Papa.parse(results[2], { header: true, skipEmptyLines: true }).data;
                 const ocupData = Papa.parse(results[3], { header: true, skipEmptyLines: true }).data;
                 const stockData = Papa.parse(results[4], { header: true, skipEmptyLines: true }).data;
+
+                // Guardar datos globalmente
+                _globalPickData = pickData;
+                _globalCicData = cicData;
+                _globalHistData = histData;
 
                 processData(pickData, cicData, histData);
                 renderOcupacion(ocupData);
@@ -527,10 +540,11 @@
             document.getElementById('val-units').innerText = Math.round(totalUnits).toLocaleString();
 
             // KPIs - INVENTARIO (Cíclico)
-            const invLocs = new Set(cData.map(r => r[cCols.loc]).filter(loc => loc && loc.trim() !== '')).size;
-            const invSkus = new Set(cData.map(r => r[cCols.sku])).size;
-            const invUnits = cData.reduce((s, r) => s + (parseFloat(r[cCols.fisico]) || 0), 0);
-            const resolvedCount = cData.filter(r => (r[cCols.status] || '').trim().toUpperCase() === 'RESUELTO').length + 
+            const filteredCData = applyInventoryFilter(cData); // Aplicar filtro de fecha
+            const invLocs = new Set(filteredCData.map(r => r[cCols.loc]).filter(loc => loc && loc.trim() !== '')).size;
+            const invSkus = new Set(filteredCData.map(r => r[cCols.sku])).size;
+            const invUnits = filteredCData.reduce((s, r) => s + (parseFloat(r[cCols.fisico]) || 0), 0);
+            const resolvedCount = filteredCData.filter(r => (r[cCols.status] || '').trim().toUpperCase() === 'RESUELTO').length + 
                                 (hData.filter(r => (r[hCols.status] || '').trim().toUpperCase() === 'RESUELTO').length || 0);
 
             document.getElementById('val-inv-locs').innerText = invLocs.toLocaleString();
@@ -540,7 +554,7 @@
 
             // 2. Charts & Cobertura
             const pickLocs = new Set(pData.map(r => r[pCols.loc]));
-            const cicLocs = new Set(cData.map(r => r[cCols.loc]));
+            const cicLocs = new Set(filteredCData.map(r => r[cCols.loc])); // Usar datos filtrados
             let auditedMatches = 0;
             pickLocs.forEach(l => { if (cicLocs.has(l)) auditedMatches++; });
 
@@ -549,12 +563,12 @@
             document.getElementById('coverage-bar').style.width = `${coverage}%`;
             
             document.getElementById('sum-inv-locs').innerText = cicLocs.size;
-            document.getElementById('sum-inv-diffs').innerText = cData.filter(r => parseFloat(r[cCols.diff]) !== 0).length;
+            document.getElementById('sum-inv-diffs').innerText = filteredCData.filter(r => parseFloat(r[cCols.diff]) !== 0).length;
 
-            renderChart(pickLocs.size, auditedMatches);
+            renderChart(pickLocs.size, auditedMatches, invLocs);
 
             // 3. Renderizado de Tablas
-            renderErrorTable(cData.filter(r => parseFloat(r[cCols.diff]) !== 0), cCols);
+            renderErrorTable(filteredCData.filter(r => parseFloat(r[cCols.diff]) !== 0), cCols);
             renderPendingTable(pData, [...cicLocs], pCols);
             renderHistoryTable(hData, hCols);
         }
@@ -653,7 +667,7 @@
             });
         }
 
-        function renderChart(total, audited) {
+        function renderChart(total, audited, totalInventariado) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (currentChart) currentChart.destroy();
             
@@ -682,11 +696,11 @@
                 type: 'bar',
                 plugins: [datalabelsPlugin],
                 data: {
-                    labels: ['LOCS. PICKEADAS', 'AUDITADAS (DENTRO DEL PICKING)'],
+                    labels: ['LOCS. PICKEADAS', 'AUDITADAS (DENTRO DEL PICKING)', 'LOCS. INVENTARIADAS'],
                     datasets: [{
-                        data: [total, audited],
-                        backgroundColor: ['rgba(196, 30, 58, 0.6)', 'rgba(34, 197, 94, 0.8)'],
-                        borderColor: ['#C41E3A', '#22c55e'],
+                        data: [total, audited, totalInventariado],
+                        backgroundColor: ['rgba(196, 30, 58, 0.6)', 'rgba(34, 197, 94, 0.8)', 'rgba(59, 130, 246, 0.7)'],
+                        borderColor: ['#C41E3A', '#22c55e', '#3b82f6'],
                         borderWidth: 2,
                         borderRadius: 8,
                         barThickness: 80
@@ -757,6 +771,67 @@
             semanalBaseDate = new Date();
             renderFichaSemanal(_globalPickData, _globalCicData, semanalBaseDate);
             lucide.createIcons();
+        }
+
+        // ══════════════════════════════════════════════════════
+        // FILTROS DE INVENTARIO CÍCLICO
+        // ══════════════════════════════════════════════════════
+        function filterInventoryByDays(type) {
+            if (type === 'today') {
+                const today = new Date().toISOString().split('T')[0];
+                inventoryFilter = { type: 'today', date: today };
+                document.getElementById('inventory-date-filter').value = today;
+            } else {
+                inventoryFilter = { type: 'all', date: null };
+                document.getElementById('inventory-date-filter').value = '';
+            }
+            // Recalcular KPIs con el filtro aplicado
+            if (_globalCicData.length > 0) {
+                processData(_globalPickData, _globalCicData, _globalHistData);
+            }
+        }
+
+        function filterInventoryByDate(dateValue) {
+            if (!dateValue) {
+                inventoryFilter = { type: 'all', date: null };
+            } else {
+                inventoryFilter = { type: 'date', date: dateValue };
+            }
+            // Recalcular KPIs con el filtro aplicado
+            if (_globalCicData.length > 0) {
+                processData(_globalPickData, _globalCicData, _globalHistData);
+            }
+        }
+
+        function applyInventoryFilter(data) {
+            if (inventoryFilter.type === 'all') {
+                return data;
+            }
+
+            let filterDate;
+            if (inventoryFilter.type === 'today') {
+                filterDate = new Date();
+                filterDate.setHours(0, 0, 0, 0);
+            } else if (inventoryFilter.date) {
+                filterDate = new Date(inventoryFilter.date);
+                filterDate.setHours(0, 0, 0, 0);
+            } else {
+                return data; // Sin fecha específica, no filtrar
+            }
+
+            return data.filter(row => {
+                const rowDateStr = row['FECHA'] || row['Fecha'] || row['fecha'];
+                if (!rowDateStr) return false;
+                
+                // Parsear fecha DD/MM/YYYY
+                const parts = rowDateStr.split('/');
+                if (parts.length !== 3) return false;
+                
+                const rowDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                rowDate.setHours(0, 0, 0, 0);
+                
+                return rowDate.getTime() === filterDate.getTime();
+            });
         }
 
         // ══════════════════════════════════════════════════════
