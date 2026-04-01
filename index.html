@@ -385,28 +385,28 @@
 
         </div>
 
-        <!-- FICHA SEMANAL DE PERFORMANCE -->
+        <!-- FICHA DE PERFORMANCE -->
         
         <div class="glass-card overflow-hidden">
             <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
                 <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-yellow-400">
-                    <i data-lucide="calendar-range"></i> Ficha Semanal de Performance
+                    <i data-lucide="calendar-range"></i> Ficha de Performance
                 </h2>
                 <div class="flex items-center gap-3 flex-wrap">
-                    <button onclick="navigateSemanal(-1)" class="bg-slate-800 hover:bg-slate-700 border border-white/10 p-2 rounded-lg text-slate-400 hover:text-yellow-400 transition-all" title="Semana anterior">
+                    <button onclick="navigateRange(-1)" class="bg-slate-800 hover:bg-slate-700 border border-white/10 p-2 rounded-lg text-slate-400 hover:text-yellow-400 transition-all" title="Período anterior">
                         <i data-lucide="chevron-left" class="w-4 h-4"></i>
                     </button>
-                    <div class="flex flex-col items-center gap-0.5">
-                        <span id="semanal-week-label" class="text-yellow-400 font-black text-xs tracking-widest">--/-- — --/--</span>
-                        <input type="date" id="semanal-date-input" onchange="jumpToWeek(this.value)" class="bg-slate-800/50 border border-white/10 text-[10px] text-slate-400 text-center rounded px-2 py-1 outline-none cursor-pointer hover:border-yellow-500/30 transition-all">
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="range-start-input" onchange="updateRange()" class="bg-slate-800/50 border border-white/10 text-[10px] text-slate-400 text-center rounded px-2 py-1 outline-none cursor-pointer hover:border-yellow-500/30 transition-all">
+                        <span class="text-[10px] text-slate-500">a</span>
+                        <input type="date" id="range-end-input" onchange="updateRange()" class="bg-slate-800/50 border border-white/10 text-[10px] text-slate-400 text-center rounded px-2 py-1 outline-none cursor-pointer hover:border-yellow-500/30 transition-all">
                     </div>
-                    <button onclick="navigateSemanal(1)" class="bg-slate-800 hover:bg-slate-700 border border-white/10 p-2 rounded-lg text-slate-400 hover:text-yellow-400 transition-all" title="Semana siguiente">
+                    <button onclick="navigateRange(1)" class="bg-slate-800 hover:bg-slate-700 border border-white/10 p-2 rounded-lg text-slate-400 hover:text-yellow-400 transition-all" title="Período siguiente">
                         <i data-lucide="chevron-right" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="jumpToThisWeek()" class="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 px-3 py-1.5 rounded-lg text-[10px] font-black text-yellow-400 transition-all uppercase tracking-widest">Hoy</button>
+                    <button onclick="setDefaultRange()" class="bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 px-3 py-1.5 rounded-lg text-[10px] font-black text-yellow-400 transition-all uppercase tracking-widest">Últimos 7 días</button>
                     <div class="h-6 w-px bg-white/10"></div>
-                    <span id="semanal-badge-curr" class="bg-yellow-600/20 text-yellow-400 text-[10px] font-black px-3 py-1 rounded border border-yellow-500/30">Sem. Actual</span>
-                    <span id="semanal-badge-prev" class="bg-slate-700/50 text-slate-400 text-[10px] font-black px-3 py-1 rounded border border-white/10">Sem. Ant.</span>
+                    <span id="range-label" class="bg-yellow-600/20 text-yellow-400 text-[10px] font-black px-3 py-1 rounded border border-yellow-500/30">--/-- — --/--</span>
                 </div>
             </div>
             <div class="overflow-x-auto scroller">
@@ -414,9 +414,9 @@
                     <thead class="sticky top-0 bg-slate-950 text-slate-500 z-10">
                         <tr>
                             <th class="px-6 py-4 text-left font-black tracking-widest uppercase text-[10px] w-48">Descripción</th>
-                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-yellow-400" id="week-col-1">Semana Actual</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-yellow-400" id="range-col-1">Período Actual</th>
                             <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-600">Accuracy %</th>
-                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-400" id="week-col-2">Semana Ant.</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-400" id="range-col-2">Período Anterior</th>
                             <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-600">Accuracy %</th>
                         </tr>
                     </thead>
@@ -449,11 +449,11 @@
         };
 
         let currentChart = null;
-        let semanalBaseDate = new Date();
         let _globalPickData = [];
         let _globalCicData  = [];
         let _globalHistData = [];
         let inventoryFilter = { type: 'all', date: null };
+        let performanceRange = { start: null, end: null };
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -486,6 +486,12 @@
 
                 processData(pickData, cicData, histData);
                 renderOcupacion(ocupData);
+                // Inicializar rango de performance con últimos 7 días
+                const today = new Date();
+                performanceRange = {
+                    start: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6),
+                    end: today
+                };
                 renderFichaSemanal(pickData, cicData);
                 renderStockChery(stockData);
 
@@ -749,27 +755,49 @@
         }
 
         function refreshData() {
-            semanalBaseDate = new Date();
+            // Reinicializar rango por defecto al actualizar datos
+            const today = new Date();
+            performanceRange = {
+                start: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6),
+                end: today
+            };
             initData();
         }
 
-        function navigateSemanal(direction) {
-            semanalBaseDate = new Date(semanalBaseDate);
-            semanalBaseDate.setDate(semanalBaseDate.getDate() + (direction * 7));
-            renderFichaSemanal(_globalPickData, _globalCicData, semanalBaseDate);
+        function navigateRange(direction) {
+            // Calcular duración del rango actual
+            const duration = Math.round((performanceRange.end - performanceRange.start) / (1000*60*60*24)) + 1;
+            const newStart = new Date(performanceRange.start);
+            newStart.setDate(newStart.getDate() + (direction * duration));
+            const newEnd = new Date(newStart);
+            newEnd.setDate(newEnd.getDate() + duration - 1);
+            performanceRange = { start: newStart, end: newEnd };
+            renderFichaSemanal(_globalPickData, _globalCicData, performanceRange);
             lucide.createIcons();
         }
 
-        function jumpToWeek(dateValue) {
-            if (!dateValue) return;
-            semanalBaseDate = new Date(dateValue + 'T00:00:00');
-            renderFichaSemanal(_globalPickData, _globalCicData, semanalBaseDate);
+        function updateRange() {
+            const startStr = document.getElementById('range-start-input').value;
+            const endStr = document.getElementById('range-end-input').value;
+            if (!startStr || !endStr) return;
+            const start = new Date(startStr + 'T00:00:00');
+            const end = new Date(endStr + 'T00:00:00');
+            if (start > end) {
+                alert('La fecha de inicio no puede ser mayor que la fecha fin');
+                return;
+            }
+            performanceRange = { start, end };
+            renderFichaSemanal(_globalPickData, _globalCicData, performanceRange);
             lucide.createIcons();
         }
 
-        function jumpToThisWeek() {
-            semanalBaseDate = new Date();
-            renderFichaSemanal(_globalPickData, _globalCicData, semanalBaseDate);
+        function setDefaultRange() {
+            const today = new Date();
+            performanceRange = {
+                start: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6),
+                end: today
+            };
+            renderFichaSemanal(_globalPickData, _globalCicData, performanceRange);
             lucide.createIcons();
         }
 
@@ -904,31 +932,47 @@
         // ══════════════════════════════════════════════════════
         // SECCIÓN NUEVA 2: FICHA SEMANAL DE PERFORMANCE
         // ══════════════════════════════════════════════════════
-        function renderFichaSemanal(pData, cData, baseDate) {
+        function renderFichaSemanal(pData, cData, range) {
             // Store globally for navigation
             _globalPickData = pData;
             _globalCicData  = cData;
-            if (!baseDate) baseDate = semanalBaseDate;
-            semanalBaseDate = new Date(baseDate);
-
-            const today = semanalBaseDate;
-            const dow = today.getDay();
-            const daysToMon = dow === 0 ? 6 : dow - 1;
-
-            const thisMonday = new Date(today); thisMonday.setDate(today.getDate() - daysToMon); thisMonday.setHours(0,0,0,0);
-            const thisSunday = new Date(thisMonday); thisSunday.setDate(thisMonday.getDate() + 6); thisSunday.setHours(23,59,59,999);
-            const lastMonday = new Date(thisMonday); lastMonday.setDate(thisMonday.getDate() - 7);
-            const lastSunday = new Date(lastMonday); lastSunday.setDate(lastMonday.getDate() + 6); lastSunday.setHours(23,59,59,999);
+            
+            // Usar rango proporcionado o el global
+            if (!range) range = performanceRange;
+            if (!range.start || !range.end) {
+                // Si no hay rango, usar últimos 7 días
+                const today = new Date();
+                range = {
+                    start: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6),
+                    end: today
+                };
+                performanceRange = range;
+            }
+            
+            const startDate = new Date(range.start);
+            const endDate = new Date(range.end);
+            startDate.setHours(0,0,0,0);
+            endDate.setHours(23,59,59,999);
+            
+            // Periodo anterior (mismo número de días)
+            const daysDiff = Math.round((endDate - startDate) / (1000*60*60*24)) + 1;
+            const prevEndDate = new Date(startDate);
+            prevEndDate.setDate(prevEndDate.getDate() - 1);
+            const prevStartDate = new Date(prevEndDate);
+            prevStartDate.setDate(prevStartDate.getDate() - daysDiff + 1);
+            prevStartDate.setHours(0,0,0,0);
+            prevEndDate.setHours(23,59,59,999);
 
             const fmt = d => `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
-            document.getElementById('week-col-1').textContent = `${fmt(thisMonday)} — ${fmt(thisSunday)}`;
-            document.getElementById('week-col-2').textContent = `${fmt(lastMonday)} — ${fmt(lastSunday)}`;
-            document.getElementById('semanal-badge-curr').textContent = `Sem. ${fmt(thisMonday)}`;
-            document.getElementById('semanal-badge-prev').textContent = `Sem. ${fmt(lastMonday)}`;
-            document.getElementById('semanal-week-label').textContent = `${fmt(thisMonday)} — ${fmt(thisSunday)}`;
-            const isoDate = `${thisMonday.getFullYear()}-${(thisMonday.getMonth()+1).toString().padStart(2,'0')}-${thisMonday.getDate().toString().padStart(2,'0')}`;
-            const inp = document.getElementById('semanal-date-input');
-            if (inp) inp.value = isoDate;
+            document.getElementById('range-col-1').textContent = `${fmt(startDate)} — ${fmt(endDate)}`;
+            document.getElementById('range-col-2').textContent = `${fmt(prevStartDate)} — ${fmt(prevEndDate)}`;
+            document.getElementById('range-label').textContent = `${fmt(startDate)} — ${fmt(endDate)}`;
+            
+            // Actualizar inputs
+            const startIso = `${startDate.getFullYear()}-${(startDate.getMonth()+1).toString().padStart(2,'0')}-${startDate.getDate().toString().padStart(2,'0')}`;
+            const endIso = `${endDate.getFullYear()}-${(endDate.getMonth()+1).toString().padStart(2,'0')}-${endDate.getDate().toString().padStart(2,'0')}`;
+            document.getElementById('range-start-input').value = startIso;
+            document.getElementById('range-end-input').value = endIso;
 
             const parseDate = s => {
                 if (!s) return null;
@@ -956,10 +1000,10 @@
                 });
             };
 
-            const pickCurr = filterPick(thisMonday, thisSunday);
-            const pickPrev = filterPick(lastMonday, lastSunday);
-            const cicCurr  = filterCic(thisMonday, thisSunday);
-            const cicPrev  = filterCic(lastMonday, lastSunday);
+            const pickCurr = filterPick(startDate, endDate);
+            const pickPrev = filterPick(prevStartDate, prevEndDate);
+            const cicCurr  = filterCic(startDate, endDate);
+            const cicPrev  = filterCic(prevStartDate, prevEndDate);
 
             const calcMetrics = (pickW, cicW) => {
                 // Filtrar filas con LOC vacío
