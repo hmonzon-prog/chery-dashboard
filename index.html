@@ -415,9 +415,11 @@
                         <tr>
                             <th class="px-6 py-4 text-left font-black tracking-widest uppercase text-[10px] w-48">Descripción</th>
                             <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-yellow-400" id="range-col-1">Período Actual</th>
-                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-600">Accuracy %</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-600">Accuracy OK %</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-red-400">% NO OK</th>
                             <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-400" id="range-col-2">Período Anterior</th>
-                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-600">Accuracy %</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-600">Accuracy OK %</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-red-400">% NO OK</th>
                         </tr>
                     </thead>
                     <tbody id="semanal-body" class="divide-y divide-white/5"></tbody>
@@ -1030,7 +1032,11 @@
                 const unNOK   = Math.round(cicWF.reduce((s, r) => { const d = parseFloat(r['Diferencia']); return s + (d !== 0 ? d : 0); }, 0));
                 const skusNOK = new Set(cicWF.filter(r => parseFloat(r['Diferencia']) !== 0).map(r => r['SKU'])).size;
                 const ubPend  = [...new Set(pickW.map(r => r['Ubicacion Origen']))].filter(l => !cicLocs.has(l)).length;
-                return { skusOut, unidOut, ubPick, skusInv, unidInv, ubInv, ubOK, ubNOK, unNOK, skusNOK, ubPend };
+                // Porcentajes NO OK
+                const skusNOKPct = skusInv > 0 ? (skusNOK / skusInv) * 100 : 0;
+                const unNOKPct = unidInv > 0 ? (unNOK / unidInv) * 100 : 0;
+                const ubNOKPct = ubInv > 0 ? (ubNOK / ubInv) * 100 : 0;
+                return { skusOut, unidOut, ubPick, skusInv, unidInv, ubInv, ubOK, ubNOK, unNOK, skusNOK, ubPend, skusNOKPct, unNOKPct, ubNOKPct };
             };
 
             const curr = calcMetrics(pickCurr, cicCurr);
@@ -1045,18 +1051,20 @@
                 return percentage.toFixed(2) + '%';
             };
 
+            const pctFormat = (value) => value > 0 ? value.toFixed(2) + '%' : '—';
+            
             const rows = [
-                { label: 'SKUs OUT',        cat: 'gray',   cQ: curr.skusOut,  cA: '—',                              pQ: prev.skusOut,  pA: '—' },
-                { label: 'Unid OUT',        cat: 'gray',   cQ: curr.unidOut,  cA: '—',                              pQ: prev.unidOut,  pA: '—' },
-                { label: 'Ub. Pickeadas',   cat: 'gray',   cQ: curr.ubPick,   cA: '—',                              pQ: prev.ubPick,   pA: '—' },
-                { label: 'SKUs Invent.',    cat: 'orange', cQ: curr.skusInv,  cA: acc(curr.skusInv - curr.skusNOK, curr.skusInv),  pQ: prev.skusInv,  pA: acc(prev.skusInv - prev.skusNOK, prev.skusInv)  },
-                { label: 'Unid. Invent.',   cat: 'orange', cQ: curr.unidInv,  cA: acc(curr.unidInv, curr.unidOut),  pQ: prev.unidInv,  pA: acc(prev.unidInv, prev.unidOut)  },
-                { label: 'Ub. Invent.',     cat: 'orange', cQ: curr.ubInv,    cA: acc(curr.ubInv, curr.ubPick),     pQ: prev.ubInv,    pA: acc(prev.ubInv, prev.ubPick)    },
-                { label: 'Ub. OK',          cat: 'orange', cQ: curr.ubOK,     cA: acc(curr.ubOK, curr.ubInv),       pQ: prev.ubOK,     pA: acc(prev.ubOK, prev.ubInv)      },
-                { label: 'Ub NO OK',        cat: 'orange', cQ: curr.ubNOK,    cA: acc(curr.ubNOK, curr.ubInv),      pQ: prev.ubNOK,    pA: acc(prev.ubNOK, prev.ubInv)     },
-                { label: 'Un. NO OK',       cat: 'orange', cQ: curr.unNOK,    cA: acc(curr.unNOK, curr.unidInv),    pQ: prev.unNOK,    pA: acc(prev.unNOK, prev.unidInv)   },
-                { label: 'SKUs NO OK',      cat: 'orange', cQ: curr.skusNOK,  cA: acc(curr.skusNOK, curr.skusInv),  pQ: prev.skusNOK,  pA: acc(prev.skusNOK, prev.skusInv) },
-                { label: 'Ub. Pend (pick)', cat: 'orange', cQ: curr.ubPend,   cA: acc(curr.ubPend, curr.ubPick),    pQ: prev.ubPend,   pA: acc(prev.ubPend, prev.ubPick)   },
+                { label: 'SKUs OUT',        cat: 'gray',   cQ: curr.skusOut,  cA: '—', nA: '—', pQ: prev.skusOut,  pA: '—', pN: '—' },
+                { label: 'Unid OUT',        cat: 'gray',   cQ: curr.unidOut,  cA: '—', nA: '—', pQ: prev.unidOut,  pA: '—', pN: '—' },
+                { label: 'Ub. Pickeadas',   cat: 'gray',   cQ: curr.ubPick,   cA: '—', nA: '—', pQ: prev.ubPick,   pA: '—', pN: '—' },
+                { label: 'SKUs Invent. (Precisión)',    cat: 'orange', cQ: curr.skusInv,  cA: acc(curr.skusInv - curr.skusNOK, curr.skusInv), nA: pctFormat(curr.skusNOKPct), pQ: prev.skusInv,  pA: acc(prev.skusInv - prev.skusNOK, prev.skusInv), pN: pctFormat(prev.skusNOKPct) },
+                { label: 'Unid. Invent. (Precisión)',   cat: 'orange', cQ: curr.unidInv,  cA: acc(curr.unidInv - curr.unNOK, curr.unidInv), nA: pctFormat(curr.unNOKPct), pQ: prev.unidInv,  pA: acc(prev.unidInv - prev.unNOK, prev.unidInv), pN: pctFormat(prev.unNOKPct) },
+                { label: 'Ub. Invent. (Precisión)',     cat: 'orange', cQ: curr.ubInv,    cA: acc(curr.ubInv - curr.ubNOK, curr.ubInv), nA: pctFormat(curr.ubNOKPct), pQ: prev.ubInv,    pA: acc(prev.ubInv - prev.ubNOK, prev.ubInv), pN: pctFormat(prev.ubNOKPct) },
+                { label: 'Ub. OK',          cat: 'orange', cQ: curr.ubOK,     cA: acc(curr.ubOK, curr.ubInv), nA: '—', pQ: prev.ubOK,     pA: acc(prev.ubOK, prev.ubInv), pN: '—' },
+                { label: 'Ub NO OK',        cat: 'orange', cQ: curr.ubNOK,    cA: acc(curr.ubNOK, curr.ubInv), nA: '—', pQ: prev.ubNOK,    pA: acc(prev.ubNOK, prev.ubInv), pN: '—' },
+                { label: 'Un. NO OK',       cat: 'orange', cQ: curr.unNOK,    cA: acc(curr.unNOK, curr.unidInv), nA: '—', pQ: prev.unNOK,    pA: acc(prev.unNOK, prev.unidInv), pN: '—' },
+                { label: 'SKUs NO OK',      cat: 'orange', cQ: curr.skusNOK,  cA: acc(curr.skusNOK, curr.skusInv), nA: '—', pQ: prev.skusNOK,  pA: acc(prev.skusNOK, prev.skusInv), pN: '—' },
+                { label: 'Ub. Pend (pick)', cat: 'orange', cQ: curr.ubPend,   cA: acc(curr.ubPend, curr.ubPick), nA: '—', pQ: prev.ubPend,   pA: acc(prev.ubPend, prev.ubPick), pN: '—' },
             ];
 
             const body = document.getElementById('semanal-body');
@@ -1070,8 +1078,10 @@
                     <td class="px-6 py-3 font-bold text-slate-200 border-l-4 ${isGray ? 'border-slate-600' : 'border-orange-500/50'}">${row.label}</td>
                     <td class="px-6 py-3 text-center font-black text-white text-sm">${row.cQ !== undefined ? row.cQ.toLocaleString() : '—'}</td>
                     <td class="px-6 py-3 text-center text-yellow-400/70 italic text-[11px]">${row.cA}</td>
+                    <td class="px-6 py-3 text-center text-red-400 italic text-[11px]">${row.nA}</td>
                     <td class="px-6 py-3 text-center font-bold text-slate-400">${row.pQ !== undefined ? row.pQ.toLocaleString() : '—'}</td>
                     <td class="px-6 py-3 text-center text-slate-600 italic text-[11px]">${row.pA}</td>
+                    <td class="px-6 py-3 text-center text-slate-500 italic text-[11px]">${row.pN}</td>
                 `;
                 body.appendChild(tr);
             });
