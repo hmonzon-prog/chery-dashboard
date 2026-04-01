@@ -427,6 +427,32 @@
             </div>
         </div>
 
+        <!-- TABLA DE COBERTURA -->
+        <div class="glass-card overflow-hidden mt-8">
+            <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
+                <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-yellow-400">
+                    <i data-lucide="bar-chart-3"></i> Análisis de Cobertura
+                </h2>
+                <span class="text-[10px] text-slate-500 italic">Pickeado vs Stock vs Inventariado</span>
+            </div>
+            <div class="overflow-x-auto scroller">
+                <table class="w-full text-xs">
+                    <thead class="sticky top-0 bg-slate-950 text-slate-500 z-10">
+                        <tr>
+                            <th class="px-6 py-4 text-left font-black tracking-widest uppercase text-[10px] w-48">Categoría</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-400">Stock Total</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-yellow-400">Pickeado</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-500">% sobre Stock</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-green-400">Inventariado</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-slate-500">% sobre Stock</th>
+                            <th class="px-6 py-4 text-center font-black uppercase text-[10px] text-blue-400">% sobre Pickeado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="coverage-body" class="divide-y divide-white/5"></tbody>
+                </table>
+            </div>
+        </div>
+
     </main>
 
     <!-- LOADING SCREEN -->
@@ -454,6 +480,8 @@
         let _globalPickData = [];
         let _globalCicData  = [];
         let _globalHistData = [];
+        let _globalOcupData = [];
+        let _globalStockData = [];
         let inventoryFilter = { type: 'all', date: null };
         let performanceRange = { start: null, end: null };
 
@@ -485,9 +513,12 @@
                 _globalPickData = pickData;
                 _globalCicData = cicData;
                 _globalHistData = histData;
+                _globalOcupData = ocupData;
+                _globalStockData = stockData;
 
                 processData(pickData, cicData, histData);
                 renderOcupacion(ocupData);
+                renderCoverageTable(pickData, cicData, stockData, ocupData);
                 // Inicializar rango de performance con últimos 7 días
                 const today = new Date();
                 performanceRange = {
@@ -1082,6 +1113,109 @@
                     <td class="px-6 py-3 text-center font-bold text-slate-400">${row.pQ !== undefined ? row.pQ.toLocaleString() : '—'}</td>
                     <td class="px-6 py-3 text-center text-slate-600 italic text-[11px]">${row.pA}</td>
                     <td class="px-6 py-3 text-center text-slate-500 italic text-[11px]">${row.pN}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function renderCoverageTable(pData, cData, stockData, ocupData) {
+            // Calcular stock total de CHERY
+            const cheryStock = stockData.filter(r => r['Marca'] && r['Marca'].trim().toUpperCase() === 'CHERY');
+            const totalSkus = new Set(cheryStock.map(r => r['SKU'])).size;
+            const totalUnid = cheryStock.reduce((s, r) => s + (parseFloat(r['Cant']) || 0), 0);
+            
+            // Calcular total de ubicaciones (CHERY)
+            const cheryOcup = ocupData.filter(r => r['SECTOR'] && r['SECTOR'].trim().toUpperCase() === 'CHERY');
+            const totalLocs = cheryOcup.length;
+            
+            // Datos del período actual (usando performanceRange)
+            const startDate = performanceRange.start;
+            const endDate = performanceRange.end;
+            startDate.setHours(0,0,0,0);
+            endDate.setHours(23,59,59,999);
+            
+            // Función para parsear fechas
+            const parseDate = s => {
+                if (!s) return null;
+                const p = s.trim().split('/');
+                return p.length === 3 ? new Date(+p[2], +p[1]-1, +p[0]) : null;
+            };
+            
+            // Filtrar picking por fechas
+            const filteredPick = pData.filter(r => {
+                const d = parseDate(r['Fecha']);
+                return d && d >= startDate && d <= endDate;
+            });
+            
+            // Filtrar inventario por fechas (si tiene columna FECHA)
+            const hasCicDate = cData.length > 0 && (
+                cData[0]['FECHA'] !== undefined ||
+                cData[0]['Fecha'] !== undefined ||
+                cData[0]['fecha'] !== undefined
+            );
+            let filteredCic = cData;
+            if (hasCicDate) {
+                filteredCic = cData.filter(r => {
+                    const raw = r['FECHA'] || r['Fecha'] || r['fecha'];
+                    const d = parseDate(raw);
+                    return d && d >= startDate && d <= endDate;
+                });
+            }
+            
+            // Calcular métricas de picking
+            const skusOut = new Set(filteredPick.map(r => r['sku'])).size;
+            const unidOut = filteredPick.reduce((s, r) => s + (parseFloat(r['Cantidad']) || 0), 0);
+            const ubPick = new Set(filteredPick.map(r => r['Ubicacion Origen'])).size;
+            
+            // Calcular métricas de inventario
+            const cicWF = filteredCic.filter(r => r['LOC'] && r['LOC'].trim() !== '');
+            const skusInv = new Set(cicWF.map(r => r['SKU'])).size;
+            const unidInv = cicWF.reduce((s, r) => s + (parseFloat(r['Fisico']) || 0), 0);
+            const cicLocs = new Set(cicWF.map(r => r['LOC']));
+            const ubInv = cicLocs.size;
+            
+            // Función para porcentaje con color
+            const pctFormat = (value) => {
+                if (value === 0) return '—';
+                if (value >= 100) return `<span style="color: #22c55e; font-weight: bold;">✓ ${value.toFixed(1)}%</span>`;
+                return `<span style="color: ${value > 50 ? '#22c55e' : value > 20 ? '#eab308' : '#ef4444'};">${value.toFixed(2)}%</span>`;
+            };
+            
+            // Calcular porcentajes
+            const skusPickVsStock = totalSkus > 0 ? (skusOut / totalSkus) * 100 : 0;
+            const unidPickVsStock = totalUnid > 0 ? (unidOut / totalUnid) * 100 : 0;
+            const ubPickVsLocs = totalLocs > 0 ? (ubPick / totalLocs) * 100 : 0;
+            
+            const skusInvVsStock = totalSkus > 0 ? (skusInv / totalSkus) * 100 : 0;
+            const unidInvVsStock = totalUnid > 0 ? (unidInv / totalUnid) * 100 : 0;
+            const ubInvVsLocs = totalLocs > 0 ? (ubInv / totalLocs) * 100 : 0;
+            
+            const skusInvVsPick = skusOut > 0 ? (skusInv / skusOut) * 100 : 0;
+            const unidInvVsPick = unidOut > 0 ? (unidInv / unidOut) * 100 : 0;
+            const ubInvVsPick = ubPick > 0 ? (ubInv / ubPick) * 100 : 0;
+            
+            // Datos para la tabla
+            const coverageRows = [
+                { label: 'SKUs', stock: totalSkus, pick: skusOut, pickPct: skusPickVsStock, inv: skusInv, invPct: skusInvVsStock, invVsPick: skusInvVsPick },
+                { label: 'Unidades', stock: totalUnid, pick: unidOut, pickPct: unidPickVsStock, inv: unidInv, invPct: unidInvVsStock, invVsPick: unidInvVsPick },
+                { label: 'Ubicaciones', stock: totalLocs, pick: ubPick, pickPct: ubPickVsLocs, inv: ubInv, invPct: ubInvVsLocs, invVsPick: ubInvVsPick }
+            ];
+            
+            // Renderizar tabla
+            const coverageBody = document.getElementById('coverage-body');
+            coverageBody.innerHTML = '';
+            
+            coverageRows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/5 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-bold text-slate-200 border-l-4 border-yellow-500/50">${row.label}</td>
+                    <td class="px-6 py-4 text-center text-slate-400">${row.stock.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-center text-yellow-400">${row.pick.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-center">${pctFormat(row.pickPct)}</td>
+                    <td class="px-6 py-4 text-center text-green-400">${row.inv.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-center">${pctFormat(row.invPct)}</td>
+                    <td class="px-6 py-4 text-center">${pctFormat(row.invVsPick)}</td>
                 `;
                 body.appendChild(tr);
             });
