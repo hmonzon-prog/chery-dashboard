@@ -958,10 +958,10 @@
             const daysDiff = Math.round((endDate - startDate) / (1000*60*60*24)) + 1;
             const prevEndDate = new Date(startDate);
             prevEndDate.setDate(prevEndDate.getDate() - 1);
+            prevEndDate.setHours(23,59,59,999);
             const prevStartDate = new Date(prevEndDate);
             prevStartDate.setDate(prevStartDate.getDate() - daysDiff + 1);
             prevStartDate.setHours(0,0,0,0);
-            prevEndDate.setHours(23,59,59,999);
 
             const fmt = d => `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
             document.getElementById('range-col-1').textContent = `${fmt(startDate)} — ${fmt(endDate)}`;
