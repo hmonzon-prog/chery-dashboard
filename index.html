@@ -1119,14 +1119,22 @@
         }
 
         function renderCoverageTable(pData, cData, stockData, ocupData) {
+            console.log('DEBUG: Iniciando renderCoverageTable');
+            console.log('DEBUG: stockData length:', stockData.length);
+            console.log('DEBUG: ocupData length:', ocupData.length);
+            
             // Calcular stock total de CHERY
             const cheryStock = stockData.filter(r => r['Marca'] && r['Marca'].trim().toUpperCase() === 'CHERY');
+            console.log('DEBUG: cheryStock length:', cheryStock.length);
             const totalSkus = new Set(cheryStock.map(r => r['SKU'])).size;
             const totalUnid = cheryStock.reduce((s, r) => s + (parseFloat(r['Cant']) || 0), 0);
+            console.log('DEBUG: totalSkus:', totalSkus, 'totalUnid:', totalUnid);
             
             // Calcular total de ubicaciones (CHERY)
             const cheryOcup = ocupData.filter(r => r['SECTOR'] && r['SECTOR'].trim().toUpperCase() === 'CHERY');
+            console.log('DEBUG: cheryOcup length:', cheryOcup.length);
             const totalLocs = cheryOcup.length;
+            console.log('DEBUG: totalLocs:', totalLocs);
             
             // Datos del período actual (usando performanceRange)
             const startDate = performanceRange.start;
@@ -1217,7 +1225,7 @@
                     <td class="px-6 py-4 text-center">${pctFormat(row.invPct)}</td>
                     <td class="px-6 py-4 text-center">${pctFormat(row.invVsPick)}</td>
                 `;
-                body.appendChild(tr);
+                coverageBody.appendChild(tr);
             });
         }
     </script>
