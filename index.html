@@ -971,17 +971,18 @@
                 const skusInv = new Set(cicWF.map(r => r['SKU'])).size;
                 const unidInv = Math.round(cicWF.reduce((s, r) => s + (parseFloat(r['Fisico']) || 0), 0));
                 const ubInv   = cicLocs.size;
-                // Calcular ubicaciones únicas OK y NO OK
-                const locDiffs = {};
+                
+                // Calcular ubicaciones únicas OK y NO OK usando Sets
+                const locsWithDiff = new Set();
                 cicWF.forEach(r => {
                     const loc = r['LOC'];
-                    if (!locDiffs[loc]) locDiffs[loc] = { hasDiff: false };
                     if (parseFloat(r['Diferencia']) !== 0) {
-                        locDiffs[loc].hasDiff = true;
+                        locsWithDiff.add(loc);
                     }
                 });
-                const ubOK = Object.keys(locDiffs).filter(loc => !locDiffs[loc].hasDiff).length;
-                const ubNOK = Object.keys(locDiffs).filter(loc => locDiffs[loc].hasDiff).length;
+                const ubOK = cicLocs.size - locsWithDiff.size;
+                const ubNOK = locsWithDiff.size;
+                
                 const unNOK   = Math.round(cicWF.reduce((s, r) => { const d = parseFloat(r['Diferencia']); return s + (d !== 0 ? d : 0); }, 0));
                 const skusNOK = new Set(cicWF.filter(r => parseFloat(r['Diferencia']) !== 0).map(r => r['SKU'])).size;
                 const ubPend  = [...new Set(pickW.map(r => r['Ubicacion Origen']))].filter(l => !cicLocs.has(l)).length;
