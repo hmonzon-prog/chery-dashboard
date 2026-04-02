@@ -453,6 +453,42 @@
             </div>
         </div>
 
+        <!-- HISTORICAL SNAPSHOTS -->
+        <div class="glass-card overflow-hidden mt-8">
+            <div class="p-6 border-b border-white/10 bg-slate-900/50 flex flex-wrap justify-between items-center gap-4">
+                <h2 class="font-black flex items-center gap-2 uppercase tracking-tighter text-indigo-400">
+                    <i data-lucide="database"></i> Histórico de Snapshots
+                </h2>
+                <span class="text-[10px] text-slate-500 italic">Guardar instantáneas de stock y ocupación</span>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+                    <h3 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="package" class="w-4 h-4"></i> Stock CHERY
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Guarda el snapshot actual de SKUs y unidades en stock.</p>
+                    <div class="flex items-center gap-4">
+                        <button onclick="saveStockSnapshot()" class="bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 px-4 py-2 rounded-lg text-xs font-bold text-indigo-400 flex items-center gap-2 transition-all">
+                            <i data-lucide="save" class="w-4 h-4"></i> Guardar Snapshot Stock
+                        </button>
+                        <span id="stock-status" class="text-[10px] text-slate-500 italic"></span>
+                    </div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+                    <h3 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="warehouse" class="w-4 h-4"></i> Ocupación CHERY
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Guarda el snapshot actual de ocupación de altura y picking.</p>
+                    <div class="flex items-center gap-4">
+                        <button onclick="saveOcupacionSnapshot()" class="bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 px-4 py-2 rounded-lg text-xs font-bold text-indigo-400 flex items-center gap-2 transition-all">
+                            <i data-lucide="save" class="w-4 h-4"></i> Guardar Snapshot Ocupación
+                        </button>
+                        <span id="ocup-status" class="text-[10px] text-slate-500 italic"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- LOADING SCREEN -->
@@ -475,6 +511,10 @@
             ocup: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSJ2T8KnjQ6Xzi7gxPtdOaqkHR6n8qwdQ6T_SSW1IScK9Sr448Ipg7ViS8F1MrgprdzMgXVYkZkWvm3/pub?output=csv',
             stock: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZxzz0Qaoxzl_hJulcXY9BcXILCt4mJOoZ2IcMccUjDZ-uUXgKu-sARefr-GsW_7HpO5jKd6Z4u7yd/pub?output=csv'
         };
+
+        // URL de la Web App de Google Apps Script para snapshots históricos
+        // Reemplazar con la URL obtenida tras desplegar el script
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNbv5mylfsMFbW3hBJqkb3VC1zNxdtYvec9Wi3TfHFXWW3Dg4GQy9jJyQtQFI8wJuEcw/exec';
 
         let currentChart = null;
         let _globalPickData = [];
@@ -1227,6 +1267,89 @@
                     <td class="px-6 py-4 text-center">${pctFormat(row.invVsPick)}</td>
                 `;
                 coverageBody.appendChild(tr);
+            });
+        }
+
+        // ══════════════════════════════════════════════════════
+        // SNAPSHOT HISTÓRICO DE STOCK Y OCUPACIÓN
+        // ══════════════════════════════════════════════════════
+        function saveStockSnapshot() {
+            if (!APPS_SCRIPT_URL) {
+                alert('La URL de la Web App no está configurada. Por favor, despliega el script y establece APPS_SCRIPT_URL.');
+                return;
+            }
+            
+            const statusEl = document.getElementById('stock-status');
+            statusEl.textContent = 'Enviando...';
+            statusEl.className = 'text-[10px] text-yellow-400 italic';
+            
+            // Calcular métricas de stock CHERY
+            const cheryStock = _globalStockData.filter(r => (r['Marca'] || '').trim().toUpperCase() === 'CHERY');
+            const qtySkus = new Set(cheryStock.filter(r => parseFloat(r['Cant']) > 0).map(r => r['SKU'])).size;
+            const qtyUnidades = cheryStock.reduce((s, r) => s + (parseFloat(r['Cant']) || 0), 0);
+            
+            const data = {
+                sheetName: 'HISTORICO STOCK',
+                values: [qtySkus, Math.round(qtyUnidades), new Date().toLocaleDateString('es-AR')]
+            };
+            
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                statusEl.textContent = '¡Guardado!';
+                statusEl.className = 'text-[10px] text-green-400 italic';
+                setTimeout(() => { statusEl.textContent = ''; }, 3000);
+            })
+            .catch(err => {
+                console.error(err);
+                statusEl.textContent = 'Error: ' + err.message;
+                statusEl.className = 'text-[10px] text-red-400 italic';
+            });
+        }
+        
+        function saveOcupacionSnapshot() {
+            if (!APPS_SCRIPT_URL) {
+                alert('La URL de la Web App no está configurada. Por favor, despliega el script y establece APPS_SCRIPT_URL.');
+                return;
+            }
+            
+            const statusEl = document.getElementById('ocup-status');
+            statusEl.textContent = 'Enviando...';
+            statusEl.className = 'text-[10px] text-yellow-400 italic';
+            
+            // Filtrar datos de ocupación CHERY
+            const cheryOcup = _globalOcupData.filter(r => (r['SECTOR'] || '').trim().toUpperCase() === 'CHERY');
+            
+            // Calcular métricas según estructura de hoja
+            const alturaOcupado = cheryOcup.filter(r => (r['TIPO LOC'] || '').trim().toUpperCase() === 'ALTURA' && (r['OCUPACION'] || '').trim().toUpperCase() === 'OCUPADA').length;
+            const alturaLibre = cheryOcup.filter(r => (r['TIPO LOC'] || '').trim().toUpperCase() === 'ALTURA' && (r['OCUPACION'] || '').trim().toUpperCase() !== 'OCUPADA').length;
+            const pickingOcupado = cheryOcup.filter(r => (r['TIPO LOC'] || '').trim().toUpperCase() === 'PICKING' && (r['OCUPACION'] || '').trim().toUpperCase() === 'OCUPADA').length;
+            const pickingLibre = cheryOcup.filter(r => (r['TIPO LOC'] || '').trim().toUpperCase() === 'PICKING' && (r['OCUPACION'] || '').trim().toUpperCase() !== 'OCUPADA').length;
+            
+            const data = {
+                sheetName: 'HISTORICO OCUPACION',
+                values: [alturaOcupado, alturaLibre, pickingOcupado, pickingLibre, new Date().toLocaleDateString('es-AR')]
+            };
+            
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                statusEl.textContent = '¡Guardado!';
+                statusEl.className = 'text-[10px] text-green-400 italic';
+                setTimeout(() => { statusEl.textContent = ''; }, 3000);
+            })
+            .catch(err => {
+                console.error(err);
+                statusEl.textContent = 'Error: ' + err.message;
+                statusEl.className = 'text-[10px] text-red-400 italic';
             });
         }
     </script>
