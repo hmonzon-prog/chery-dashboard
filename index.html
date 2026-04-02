@@ -284,9 +284,9 @@
                     <div class="flex items-center gap-4 flex-1 lg:max-w-xl">
                         <select id="filter-status" onchange="applyErrorFilters()" class="bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-red-500 outline-none cursor-pointer">
                             <option value="">Todos los estados</option>
-                            <option value="PENDIENTE">PENDIENTE</option>
-                            <option value="RESUELTO">RESUELTO</option>
+                            <option value="FALTANTE CONFIRMADO">FALTANTE CONFIRMADO</option>
                             <option value="EN ANÁLISIS">EN ANÁLISIS</option>
+                            <option value="RESUELTO">RESUELTO</option>
                         </select>
                         <div class="relative flex-1">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
@@ -676,8 +676,15 @@
 
             data.forEach(r => {
                 const d = parseFloat(r[cols.diff]);
-                const status = (r[cols.status] || 'PENDIENTE').trim().toUpperCase();
+                const status = (r[cols.status] || 'FALTANTE CONFIRMADO').trim().toUpperCase();
                 const isResolved = status === 'RESUELTO';
+                
+                const statusColors = {
+                    'RESUELTO': 'bg-green-600',
+                    'EN ANÁLISIS': 'bg-yellow-600',
+                    'FALTANTE CONFIRMADO': 'bg-red-600 animate-pulse'
+                };
+                const colorClass = statusColors[status] || 'bg-red-600';
                 
                 const tr = document.createElement('tr');
                 tr.className = `hover:bg-white/5 transition-colors border-b border-white/5 ${isResolved ? 'opacity-40' : ''}`;
@@ -689,7 +696,7 @@
                     <td class="px-8 py-4 text-center font-black ${d < 0 ? 'text-red-500' : 'text-blue-400'}">${d > 0 ? '+' : ''}${d}</td>
                     <td class="px-8 py-4 text-[10px] italic text-slate-400 max-w-xs truncate" title="${r[cols.obs] || ''}">${r[cols.obs] || '---'}</td>
                     <td class="px-8 py-4">
-                        <span class="px-2 py-0.5 rounded text-[9px] font-black tracking-widest ${status === 'RESUELTO' ? 'bg-green-600' : status === 'EN ANÁLISIS' ? 'bg-yellow-600' : 'bg-red-600 animate-pulse'}">
+                        <span class="px-2 py-0.5 rounded text-[9px] font-black tracking-widest ${colorClass}">
                             ${status}
                         </span>
                     </td>
@@ -798,8 +805,15 @@
             
             data.forEach(r => {
                 const d = parseFloat(r[cols.diff]);
-                const status = (r[cols.status] || 'PENDIENTE').trim().toUpperCase();
+                const status = (r[cols.status] || 'FALTANTE CONFIRMADO').trim().toUpperCase();
                 const isResolved = status === 'RESUELTO';
+                
+                const statusColors = {
+                    'RESUELTO': 'bg-green-600',
+                    'EN ANÁLISIS': 'bg-yellow-600',
+                    'FALTANTE CONFIRMADO': 'bg-red-600 animate-pulse'
+                };
+                const colorClass = statusColors[status] || 'bg-red-600';
                 
                 const tr = document.createElement('tr');
                 tr.className = `hover:bg-white/5 transition-colors border-b border-white/5 ${isResolved ? 'opacity-40' : ''}`;
@@ -811,7 +825,7 @@
                     <td class="px-8 py-4 text-center font-black ${d < 0 ? 'text-red-500' : 'text-blue-400'}">${d > 0 ? '+' : ''}${d}</td>
                     <td class="px-8 py-4 text-[10px] italic text-slate-400 max-w-xs truncate" title="${r[cols.obs] || ''}">${r[cols.obs] || '---'}</td>
                     <td class="px-8 py-4">
-                        <span class="px-2 py-0.5 rounded text-[9px] font-black tracking-widest ${status === 'RESUELTO' ? 'bg-green-600' : status === 'EN ANÁLISIS' ? 'bg-yellow-600' : 'bg-red-600 animate-pulse'}">
+                        <span class="px-2 py-0.5 rounded text-[9px] font-black tracking-widest ${colorClass}">
                             ${status}
                         </span>
                     </td>
