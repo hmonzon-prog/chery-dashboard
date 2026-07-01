@@ -853,12 +853,14 @@
                         const meta = chart.getDatasetMeta(i);
                         meta.data.forEach((bar, index) => {
                             const value = dataset.data[index];
+                            if (value === 0 || value == null) return;
                             ctx.save();
                             ctx.fillStyle = '#ffffff';
-                            ctx.font = 'bold 18px Inter';
+                            ctx.font = 'bold 16px Inter';
                             ctx.textAlign = 'center';
-                            ctx.textBaseline = 'bottom';
-                            ctx.fillText(value, bar.x, bar.y - 8);
+                            ctx.textBaseline = 'middle';
+                            const y = bar.y + Math.max(bar.height / 2, 14);
+                            ctx.fillText(value, bar.x, y);
                             ctx.restore();
                         });
                     });
