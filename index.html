@@ -659,7 +659,7 @@
 
             const dentroPicking = auditedMatches;
             const fueraPicking = cicLocs.size - auditedMatches;
-            renderChart(cicLocs.size, dentroPicking, fueraPicking);
+            renderChart(pickLocs.size, cicLocs.size, dentroPicking, fueraPicking);
 
             // 3. Renderizado de Tablas
             renderErrorTable(filteredCData.filter(r => parseFloat(r[cCols.diff]) !== 0), cCols);
@@ -840,7 +840,7 @@
             });
         }
 
-        function renderChart(total, audited, totalInventariado) {
+        function renderChart(pickeadas, auditadas, dentroPicking, fueraPicking) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (currentChart) currentChart.destroy();
             
@@ -869,14 +869,14 @@
                 type: 'bar',
                 plugins: [datalabelsPlugin],
                 data: {
-                    labels: ['LOCS AUDITADAS', 'DENTRO DEL PICKING', 'FUERA DEL PICKING'],
+                    labels: ['LOCS PICKEADAS', 'LOCS AUDITADAS', 'DENTRO DEL PICKING', 'FUERA DEL PICKING'],
                     datasets: [{
-                        data: [total, audited, totalInventariado],
-                        backgroundColor: ['rgba(59, 130, 246, 0.7)', 'rgba(34, 197, 94, 0.8)', 'rgba(196, 30, 58, 0.6)'],
-                        borderColor: ['#3b82f6', '#22c55e', '#C41E3A'],
+                        data: [pickeadas, auditadas, dentroPicking, fueraPicking],
+                        backgroundColor: ['rgba(196, 30, 58, 0.6)', 'rgba(59, 130, 246, 0.7)', 'rgba(34, 197, 94, 0.8)', 'rgba(255, 159, 67, 0.7)'],
+                        borderColor: ['#C41E3A', '#3b82f6', '#22c55e', '#ff9f43'],
                         borderWidth: 2,
                         borderRadius: 8,
-                        barThickness: 80
+                        barThickness: 60
                     }]
                 },
                 options: {
