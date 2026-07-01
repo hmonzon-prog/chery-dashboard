@@ -267,6 +267,12 @@
                     <div id="ocup-altura"><div class="h-4 bg-slate-700 rounded animate-pulse"></div></div>
                 </div>
             </div>
+            <div class="px-6 pb-6 grid grid-cols-2 md:grid-cols-4 gap-4" id="efic-kpis">
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+                <div class="bg-slate-800/50 rounded-xl p-4 text-center animate-pulse"><p class="text-2xl font-black">--</p></div>
+            </div>
         </div>
 
         <!-- SECCIÓN DE TABLAS DE ANÁLISIS -->
@@ -530,6 +536,8 @@
         let _globalStockData = [];
         let _globalErrorData = [];
         let _globalErrorCols = {};
+        let _globalActivas = 0;
+        let _globalInvActivas = 0;
         let inventoryFilter = { type: 'all', date: null };
         let performanceRange = { start: null, end: null };
 
@@ -649,6 +657,8 @@
             const cicLocs = new Set(filteredCData.map(r => r[cCols.loc])); // Usar datos filtrados
             let auditedMatches = 0;
             pickLocs.forEach(l => { if (cicLocs.has(l)) auditedMatches++; });
+            _globalActivas = pickLocs.size;
+            _globalInvActivas = auditedMatches;
 
             const coverage = pickLocs.size > 0 ? (auditedMatches / pickLocs.size) * 100 : 0;
             document.getElementById('coverage-label').innerText = `${Math.round(coverage)}%`;
@@ -1065,6 +1075,30 @@
 
             renderOcupBar('ocup-picking', picking, 'purple');
             renderOcupBar('ocup-altura',  altura,  'blue');
+
+            // Eficiencia: activas vs inventariadas
+            const activas = _globalActivas;
+            const invActivas = _globalInvActivas;
+            const pctActivas = total > 0 ? Math.round((activas / total) * 100) : 0;
+            const pctCobertura = activas > 0 ? Math.round((invActivas / activas) * 100) : 0;
+            document.getElementById('efic-kpis').innerHTML = `
+                <div class="bg-amber-900/20 border border-amber-500/20 rounded-xl p-4 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-amber-400 mb-2">Activas (con pickeo)</p>
+                    <p class="text-3xl font-black text-amber-400">${activas.toLocaleString()}</p>
+                </div>
+                <div class="bg-amber-900/20 border border-amber-500/20 rounded-xl p-4 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-amber-400 mb-2">% Activas</p>
+                    <p class="text-3xl font-black text-amber-400">${pctActivas}%</p>
+                </div>
+                <div class="bg-emerald-900/20 border border-emerald-500/20 rounded-xl p-4 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-emerald-400 mb-2">Inventariadas (en activas)</p>
+                    <p class="text-3xl font-black text-emerald-400">${invActivas.toLocaleString()}</p>
+                </div>
+                <div class="bg-emerald-900/20 border border-emerald-500/20 rounded-xl p-4 text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-emerald-400 mb-2">% Cobertura activas</p>
+                    <p class="text-3xl font-black text-emerald-400">${pctCobertura}%</p>
+                </div>
+            `;
         }
 
         function renderStockChery(data) {
